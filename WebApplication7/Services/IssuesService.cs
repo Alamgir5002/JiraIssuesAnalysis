@@ -17,6 +17,7 @@ namespace WebApplication7.Services
         private const int MAX_RESULT = 100;
         private const string ISSUES_KEY = "issues";
         private const string TOTAL_KEY = "total";
+        private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
         public IssuesService(HttpClientService httpClientService, 
             SourceCredentialsRepository sourceCredentialsRepository,
             IssueMapperService issueMapperService)
@@ -34,15 +35,19 @@ namespace WebApplication7.Services
                 throw new Exception($"Source details not found");
             }
 
-            string endPoint = $"rest/api/3/project/{projectId}/versions";
+            string endPoint = String.Format(RELEASES_ENDPOINT, projectId);
             Uri url = new Uri(new Uri(sourceCredentials.SourceURL), endPoint);
+
             HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(), GetBasicAuthHeaders(sourceCredentials));
+
             if (!httpResponse.IsSuccessStatusCode)
             {
                 throw new Exception($"Error code: {httpResponse.StatusCode}, Content: {await httpResponse.Content.ReadAsStringAsync()}");
             }
+
             string responseBody = await httpResponse.Content.ReadAsStringAsync();
             List<Release> releases = JsonConvert.DeserializeObject<List<Release>>(responseBody);
+            
             return releases;
         }
 
