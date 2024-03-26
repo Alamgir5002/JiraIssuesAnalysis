@@ -4,7 +4,6 @@
     {
         public string Id { get; set; }
         public string IssueType { get; set; }
-        public string? Description { get; set; }
         public List<Release>? FixVersions { get; set; }
         public EstimatedAndSpentTime IssueEstimatedAndSpentTime { get; set; }
         public string? Summary {  get; set; }

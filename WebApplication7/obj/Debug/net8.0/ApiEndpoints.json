@@ -16,6 +16,32 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "WebApplication7.Controllers.IssueController",
+    "Method": "AddCustomField",
+    "RelativePath": "addCustomField",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "customFields",
+        "Type": "WebApplication7.Models.CustomField",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebApplication7.Controllers.IssueController",
+    "Method": "GetAllCustomFields",
+    "RelativePath": "allCustomFields",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "WebApplication7.Controllers.SourceController",
     "Method": "ValidateAndSaveSourceCredentials",
     "RelativePath": "api/Source",

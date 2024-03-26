@@ -1,13 +1,8 @@
-﻿using System;
-using System.Text;
-using System.Text.Json.Nodes;
+﻿using System.Text;
 using WebApplication7.Models;
 using WebApplication7.Repository;
 using Newtonsoft.Json;
-using NJsonSchema;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.IdentityModel.Tokens;
+
 
 
 namespace WebApplication7.Services
@@ -62,8 +57,9 @@ namespace WebApplication7.Services
             }
 
             Uri url = new Uri(new Uri(sourceCredentials.SourceURL), SOURCE_SEARCH_ENDPOINT);
-            HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(), 
-                                                    getRequestBody($"fixVersion = {fixVersion}"),
+            string requestBody = await getRequestBody($"fixVersion = {fixVersion}");
+            HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(),
+                                                    requestBody,
                                                     GetBasicAuthHeaders(sourceCredentials));
 
             if (!httpResponse.IsSuccessStatusCode)
@@ -71,52 +67,26 @@ namespace WebApplication7.Services
                 throw new Exception($"Error code: {httpResponse.StatusCode}, Content: {await httpResponse.Content.ReadAsStringAsync()}");
             }
             string responseBody = await httpResponse.Content.ReadAsStringAsync();
-            var issues = issueMapperService.MapToIssueObject(responseBody, sourceCredentials.SourceURL);
+            var issues = await issueMapperService.MapToIssueObject(responseBody, sourceCredentials.SourceURL);
             return issues;
         }
 
-        private string getRequestBody(string jql)
+        private async Task<string> getRequestBody(string jql)
         {
             var queryObject = new
             {
                 jql = jql,
-                maxResults = 50,
+                maxResults = 100,
                 startAt = 0,
                 expand = new[] { "changelog" },
-                fields = getFieldsValues()
+                fields = await issueMapperService.getFieldsValues()
             };
 
             string json = JsonConvert.SerializeObject(queryObject);
             return json;
         }
 
-        private List<string> getFieldsValues()
-        {
-            var fields = new List<string>{
-                "issuetype",
-                "parent",
-                "timespent",
-                "timeoriginalestimate",
-                "timeestimate",
-                "resolution",
-                "aggregatetimeestimate",
-                "aggregatetimeoriginalestimate",
-                "aggregatetimespent",
-                "created",
-                "description",
-                "priority",
-                "resolutiondate",
-                "status",
-                "subtasks",
-                "summary",
-                "timeoriginalestimate",
-                "fixVersions",
-                "customfield_10021",
-                "customfield_10024"
-            };
-
-            return fields;
-        }
+       
     }
 
 

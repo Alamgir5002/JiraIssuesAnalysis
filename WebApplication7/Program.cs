@@ -14,9 +14,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<SourceService>();
 builder.Services.AddScoped<IssuesService>();
+builder.Services.AddScoped<CustomFieldsService>();
 builder.Services.AddScoped<IssueMapperService>();
 builder.Services.AddScoped<HttpClientService>();
 builder.Services.AddScoped<SourceCredentialsRepository>();
+builder.Services.AddScoped<CustomFieldRepository>();
 
 string connectionString = builder.Configuration.GetConnectionString("SQLConnectionString") ?? throw new InvalidOperationException("Connection string of name SQLConnectionString not found");
 builder.Services.AddDbContext<DatabaseContext>(conn => conn.UseSqlServer(connectionString));

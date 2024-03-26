@@ -10,9 +10,11 @@ namespace WebApplication7.Controllers
     public class IssueController : ControllerBase
     {
         private IssuesService issuesService;
-        public IssueController(IssuesService issuesService)
+        private CustomFieldsService customFieldsService;
+        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService)
         {
             this.issuesService = issuesService;
+            this.customFieldsService = customFieldsService; 
         }
 
         [HttpGet("/releases/{projectId}")]
@@ -35,6 +37,34 @@ namespace WebApplication7.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+
+        [HttpPost("/addCustomField")]
+        public async Task<IActionResult> AddCustomField(CustomField customFields)
+        {
+            try
+            {
+                var response = await customFieldsService.AddNewCustomField(customFields);   
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("/allCustomFields")]
+        public async Task<IActionResult> GetAllCustomFields()
+        {
+            try
+            {
+                var response = await customFieldsService.GetAllCustomFieldsAsync();
+                return Ok(response);    
+            }
+            catch(Exception exception)
+            {
+                return BadRequest(exception.Message);   
+            }
         }
     }
 }

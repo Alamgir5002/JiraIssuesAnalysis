@@ -7,26 +7,33 @@ namespace WebApplication7.Services
 {
     public class IssueMapperService
     {
-        public List<Issue> MapToIssueObject(string responseBody, string sourceUrl)
+        private CustomFieldsService customFieldsService;
+        public IssueMapperService(CustomFieldsService customFieldsService)
         {
+            this.customFieldsService = customFieldsService;
+        }
+
+        public async Task<List<Issue>> MapToIssueObject(string responseBody, string sourceUrl)
+        {
+            string storyPointsCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY);
+            string teamBoardCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY);
             JObject jsonObject = JObject.Parse(responseBody);
             var issues = jsonObject["issues"]
                 .Select(item => new Issue
                 {
                     Id = castValueToGivenType<string>(item["key"]),
                     IssueType = castValueToGivenType<string>(item["fields"]["issuetype"]["name"]),
-                    Description = castValueToGivenType<string>(item["fields"]["description"]),
                     IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(item["fields"]["aggregatetimespent"], 
                                                     item["fields"]["aggregatetimeoriginalestimate"]),
                     Summary = castValueToGivenType<string>(item["fields"]["summary"]),
                     CreatedDate = getFormattedDate(item["fields"]["created"]),
                     ResolvedDate = getFormattedDate(item["fields"]["resolutiondate"]),
                     Priority = castValueToGivenType<string>(item["fields"]["priority"]["name"]),
-                    StoryPoints = castValueToGivenType<int>(item["fields"]["customfield_10024"]),
+                    StoryPoints = castValueToGivenType<int>(item["fields"][storyPointsCfValue]),
                     Status = castValueToGivenType<string>(item["fields"]["status"]["name"]),
                     Parent = convertToParent(item["fields"]["parent"], sourceUrl),
                     FixVersions = getReleaseList(item["fields"]["fixVersions"]),
-                    TeamBoard = getTeamBoard(item["fields"]?["customfield_10021"]),
+                    TeamBoard =getTeamBoard(item["fields"][teamBoardCfValue]),
                     IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"])),
                 });
 
@@ -148,6 +155,37 @@ namespace WebApplication7.Services
         private int calculateTimeInDays(int timeInSeconds)
         {
             return timeInSeconds / (3600 * 8);
+        }
+
+        public async Task<List<string>> getFieldsValues()
+        {
+            var fields = new List<string>{
+                "issuetype",
+                "parent",
+                "timespent",
+                "timeoriginalestimate",
+                "timeestimate",
+                "resolution",
+                "aggregatetimeestimate",
+                "aggregatetimeoriginalestimate",
+                "aggregatetimespent",
+                "created",
+                "description",
+                "priority",
+                "resolutiondate",
+                "status",
+                "subtasks",
+                "summary",
+                "timeoriginalestimate",
+                "fixVersions"
+            };
+
+            var storyPointsKey = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY);
+            var teamBoardsKey = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY);
+            fields.Add(storyPointsKey);
+            fields.Add(teamBoardsKey);
+
+            return fields;
         }
     }
 }
