@@ -4,16 +4,14 @@
     {
         public string Id { get; set; }
         public string IssueType { get; set; }
-        public string Description { get; set; }
-        public List<Release> FixVersions { get; set; }
-        public double AggregatedTimeSpent { get; set; } 
-        public double AggregateTimeEstimate { get; set; }
-        public string Summary {  get; set; }
+        public string? Description { get; set; }
+        public List<Release>? FixVersions { get; set; }
+        public EstimatedAndSpentTime IssueEstimatedAndSpentTime { get; set; }
+        public string? Summary {  get; set; }
         public string CreatedDate { get; set; }
         public string? ResolvedDate { get; set; }
         public string Priority { get; set; }    
         public int? StoryPoints { get; set;}
-
         public string Status { get; set; }
         public Parent? Parent { get; set; }
         public TeamBoard? TeamBoard { get; set; }
@@ -39,7 +37,8 @@
     {
         public double AggregatedTimeSpent { get; set; }
         public double AggregateTimeEstimate { get; set; }
-        public double AggregatedTimeSpentInDays { get; set; }
+        public int AggregatedTimeSpentInDays { get; set; }
+        public int AggregatedTimeEstimateInDays { get; set; }
 
     }
 }

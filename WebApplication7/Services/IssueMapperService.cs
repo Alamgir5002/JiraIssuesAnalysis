@@ -16,8 +16,8 @@ namespace WebApplication7.Services
                     Id = castValueToGivenType<string>(item["key"]),
                     IssueType = castValueToGivenType<string>(item["fields"]["issuetype"]["name"]),
                     Description = castValueToGivenType<string>(item["fields"]["description"]),
-                    AggregatedTimeSpent = castValueToGivenType<double>(item["fields"]?["aggregatetimespent"]),
-                    AggregateTimeEstimate = castValueToGivenType<double>(item["fields"]?["aggregatetimeestimate"]),
+                    IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(item["fields"]["aggregatetimespent"], 
+                                                    item["fields"]["aggregatetimeoriginalestimate"]),
                     Summary = castValueToGivenType<string>(item["fields"]["summary"]),
                     CreatedDate = getFormattedDate(item["fields"]["created"]),
                     ResolvedDate = getFormattedDate(item["fields"]["resolutiondate"]),
@@ -27,11 +27,12 @@ namespace WebApplication7.Services
                     Parent = convertToParent(item["fields"]["parent"], sourceUrl),
                     FixVersions = getReleaseList(item["fields"]["fixVersions"]),
                     TeamBoard = getTeamBoard(item["fields"]?["customfield_10021"]),
-                    IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"]))
+                    IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"])),
                 });
 
-            return issues.ToList();
+            return new List<Issue>(issues);
         }
+        
 
         private List<Release> getReleaseList(JToken jsonObject)
         {
@@ -46,13 +47,14 @@ namespace WebApplication7.Services
                 {
                     Id = castValueToGivenType<string>(item["id"]),
                     Released = castValueToGivenType<bool>(item["released"]),
-                    Name = castValueToGivenType<string>(item["name"])
+                    Name = castValueToGivenType<string>(item["name"]),
+                    ReleaseDate = getFormattedDate(castValueToGivenType<string>(item["releaseDate"]), "yyyy-mm-dd")
                 });
             }
 
             return list;
         }
-
+        
         private TeamBoard getTeamBoard(JToken jsonObject)
         {
             if (jsonObject.IsNullOrEmpty())
@@ -65,6 +67,7 @@ namespace WebApplication7.Services
             };
             return teamBoard;
         }
+        
 
         private Uri prepareIssueUrl(string sourceUrl, string issueId)
         {
@@ -76,29 +79,37 @@ namespace WebApplication7.Services
             return new Uri(new Uri(sourceUrl), $"browse/{issueId}");
         }
 
-        private string getFormattedDate(JToken date)
+        
+        private string getFormattedDate(JToken date, string timeFormat = "dd/MM/yyyy HH:mm:ss")
         {
-            string formattedDate = castValueToGivenType<string>(date);
+            string formattedDate = date.ToString();
             if (String.IsNullOrEmpty(formattedDate) || String.IsNullOrWhiteSpace(formattedDate))
             {
                 return formattedDate;
             }
 
-            DateTime parsedDate = DateTime.ParseExact(formattedDate, "dd/MM/yyyy HH:mm:ss", 
+            DateTime parsedDate = DateTime.ParseExact(formattedDate, timeFormat, 
                 System.Globalization.CultureInfo.InvariantCulture);
             return parsedDate.ToString("dd/MM/yyyy");
         }
 
         private T castValueToGivenType<T>(JToken jToken)
         {
-            if(jToken == null || jToken.Type == JTokenType.String && string.IsNullOrWhiteSpace(jToken.ToString()) || (jToken.IsNullOrEmpty() && jToken.Type != JTokenType.String))
+            try
+            {
+                if (jToken == null || (jToken.Type == JTokenType.String && string.IsNullOrWhiteSpace(jToken.ToString())))
+                {
+                    return default(T);
+                }
+
+                return jToken.ToObject<T>();
+            }
+            catch(Exception ex)
             {
                 return default(T);
             }
-
-            return jToken.ToObject<T>();
         }
-
+        
         private Parent? convertToParent(JToken jToken, string sourceUrl)
         {
             if(jToken.IsNullOrEmpty())
@@ -116,6 +127,27 @@ namespace WebApplication7.Services
                 IssueType = castValueToGivenType<string>(jToken["fields"]["issuetype"]["name"])
             };
             return parent;
+        }
+        
+        private EstimatedAndSpentTime convertTimeToEstimatedAndSpentTime(JToken jTokenEstimatedTime, JToken jTokenSpentTime)
+        {
+            int estimatedTime = castValueToGivenType<int>(jTokenEstimatedTime);
+           int timeSpent = castValueToGivenType<int>(jTokenSpentTime);
+
+
+            EstimatedAndSpentTime estimatedAndSpentTime = new EstimatedAndSpentTime
+            {
+                AggregateTimeEstimate = estimatedTime,
+                AggregatedTimeEstimateInDays = calculateTimeInDays(estimatedTime),
+                AggregatedTimeSpent = timeSpent,
+                AggregatedTimeSpentInDays = calculateTimeInDays(timeSpent)
+            };
+            return estimatedAndSpentTime;
+        }
+
+        private int calculateTimeInDays(int timeInSeconds)
+        {
+            return timeInSeconds / (3600 * 8);
         }
     }
 }

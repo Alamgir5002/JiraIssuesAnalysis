@@ -139,3 +139,4 @@ C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\Serv
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\Namotion.Reflection.dll
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\NJsonSchema.dll
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\NJsonSchema.Annotations.dll
+C:\Users\Dell\source\repos\WebApplication7\WebApplication7\obj\Debug\net8.0\WebApplication7.sourcelink.json

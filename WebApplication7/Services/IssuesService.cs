@@ -62,7 +62,10 @@ namespace WebApplication7.Services
             }
 
             Uri url = new Uri(new Uri(sourceCredentials.SourceURL), SOURCE_SEARCH_ENDPOINT);
-            HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(), getRequestBody(), GetBasicAuthHeaders(sourceCredentials));
+            HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(), 
+                                                    getRequestBody($"fixVersion = {fixVersion}"),
+                                                    GetBasicAuthHeaders(sourceCredentials));
+
             if (!httpResponse.IsSuccessStatusCode)
             {
                 throw new Exception($"Error code: {httpResponse.StatusCode}, Content: {await httpResponse.Content.ReadAsStringAsync()}");
@@ -72,16 +75,24 @@ namespace WebApplication7.Services
             return issues;
         }
 
-        private string getRequestBody()
+        private string getRequestBody(string jql)
         {
             var queryObject = new
             {
-                jql = "Issue = 'KFA-24633'",
+                jql = jql,
                 maxResults = 50,
                 startAt = 0,
                 expand = new[] { "changelog" },
-                fields = new[]
-            {
+                fields = getFieldsValues()
+            };
+
+            string json = JsonConvert.SerializeObject(queryObject);
+            return json;
+        }
+
+        private List<string> getFieldsValues()
+        {
+            var fields = new List<string>{
                 "issuetype",
                 "parent",
                 "timespent",
@@ -99,21 +110,12 @@ namespace WebApplication7.Services
                 "subtasks",
                 "summary",
                 "timeoriginalestimate",
-                "project",
                 "fixVersions",
-                "comment",
-                "updated",
-                "customfield_10040",
-                "customfield_10014",
-                "customfield_10024",
                 "customfield_10021",
-                "customfield_10044"
-            }
+                "customfield_10024"
             };
 
-            // Serialize object to JSON
-            string json = JsonConvert.SerializeObject(queryObject);
-            return json;
+            return fields;
         }
     }
 

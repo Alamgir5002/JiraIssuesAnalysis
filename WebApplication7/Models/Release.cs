@@ -5,6 +5,6 @@
         public string Id { get; set; }  
         public string Name { get; set; }
         public bool Released { get; set;}
-        public DateTime? ReleaseDate { get; set; }
+        public string? ReleaseDate { get; set; }
     }
 }
