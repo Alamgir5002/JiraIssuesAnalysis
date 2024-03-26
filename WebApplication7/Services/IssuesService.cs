@@ -2,6 +2,7 @@
 using WebApplication7.Models;
 using WebApplication7.Repository;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -13,6 +14,9 @@ namespace WebApplication7.Services
         private SourceCredentialsRepository sourceCredentialsRepository;
         private IssueMapperService issueMapperService;
         private const string SOURCE_SEARCH_ENDPOINT = "rest/api/3/search";
+        private const int MAX_RESULT = 100;
+        private const string ISSUES_KEY = "issues";
+        private const string TOTAL_KEY = "total";
         public IssuesService(HttpClientService httpClientService, 
             SourceCredentialsRepository sourceCredentialsRepository,
             IssueMapperService issueMapperService)
@@ -50,34 +54,49 @@ namespace WebApplication7.Services
 
         public async Task<List<Issue>> FetchIssuesAgainstRelease(string fixVersion)
         {
+            List<Issue> issuesList = new List<Issue>();
             SourceCredentials sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
             if (sourceCredentials == null)
             {
                 throw new Exception($"Source details not found");
             }
 
-            Uri url = new Uri(new Uri(sourceCredentials.SourceURL), SOURCE_SEARCH_ENDPOINT);
-            string requestBody = await getRequestBody($"fixVersion = {fixVersion}");
-            HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(),
-                                                    requestBody,
-                                                    GetBasicAuthHeaders(sourceCredentials));
-
-            if (!httpResponse.IsSuccessStatusCode)
+            DataClientCursor dataClientCursor = new DataClientCursor();
+            while(dataClientCursor.NextIterationPossible)
             {
-                throw new Exception($"Error code: {httpResponse.StatusCode}, Content: {await httpResponse.Content.ReadAsStringAsync()}");
+                Uri url = new Uri(new Uri(sourceCredentials.SourceURL), SOURCE_SEARCH_ENDPOINT);
+                string requestBody = await getRequestBody($"fixVersion = {fixVersion}", dataClientCursor.Iteration);
+                HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(),
+                                                        requestBody,
+                                                        GetBasicAuthHeaders(sourceCredentials));
+
+                if (!httpResponse.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Error code: {httpResponse.StatusCode}, Content: {await httpResponse.Content.ReadAsStringAsync()}");
+                }
+
+                string responseBody = await httpResponse.Content.ReadAsStringAsync();
+                JObject jsonObject = JObject.Parse(responseBody);
+                
+                dataClientCursor.TotalRecords = issueMapperService.castValueToGivenType<int>(jsonObject[TOTAL_KEY]);
+
+                var issues = await issueMapperService.MapToIssueObject(jsonObject[ISSUES_KEY], sourceCredentials.SourceURL);
+                issuesList.AddRange(issues);
+                dataClientCursor.Iteration += 1;
+
+                dataClientCursor.NextIterationPossible = (dataClientCursor.Iteration * MAX_RESULT) < dataClientCursor.TotalRecords;
             }
-            string responseBody = await httpResponse.Content.ReadAsStringAsync();
-            var issues = await issueMapperService.MapToIssueObject(responseBody, sourceCredentials.SourceURL);
-            return issues;
+
+            return issuesList;
         }
 
-        private async Task<string> getRequestBody(string jql)
+        private async Task<string> getRequestBody(string jql, int startAt)
         {
             var queryObject = new
             {
                 jql = jql,
-                maxResults = 100,
-                startAt = 0,
+                maxResults = MAX_RESULT,
+                startAt = startAt,
                 expand = new[] { "changelog" },
                 fields = await issueMapperService.getFieldsValues()
             };

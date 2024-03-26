@@ -13,12 +13,11 @@ namespace WebApplication7.Services
             this.customFieldsService = customFieldsService;
         }
 
-        public async Task<List<Issue>> MapToIssueObject(string responseBody, string sourceUrl)
+        public async Task<List<Issue>> MapToIssueObject(JToken issuesObject, string sourceUrl)
         {
             string storyPointsCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY);
             string teamBoardCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY);
-            JObject jsonObject = JObject.Parse(responseBody);
-            var issues = jsonObject["issues"]
+            var issues = issuesObject
                 .Select(item => new Issue
                 {
                     Id = castValueToGivenType<string>(item["key"]),
@@ -100,7 +99,7 @@ namespace WebApplication7.Services
             return parsedDate.ToString("dd/MM/yyyy");
         }
 
-        private T castValueToGivenType<T>(JToken jToken)
+        public T castValueToGivenType<T>(JToken jToken)
         {
             try
             {
@@ -187,5 +186,6 @@ namespace WebApplication7.Services
 
             return fields;
         }
+
     }
 }
