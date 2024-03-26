@@ -30,6 +30,7 @@ namespace WebApplication7.Controllers
             try
             {
                 var response = await issuesService.FetchIssuesAgainstRelease(fixVersion);
+                issuesService.processIssuesList(response);
                 return Ok(response);
             }
             catch (Exception ex)

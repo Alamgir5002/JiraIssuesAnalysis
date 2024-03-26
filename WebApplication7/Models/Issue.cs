@@ -3,7 +3,7 @@
     public class Issue
     {
         public string Id { get; set; }
-        public string IssueType { get; set; }
+        public IssueType IssueType { get; set; }
         public List<Release>? FixVersions { get; set; }
         public EstimatedAndSpentTime IssueEstimatedAndSpentTime { get; set; }
         public string? Summary {  get; set; }
@@ -38,6 +38,11 @@
         public double AggregateTimeEstimate { get; set; }
         public int AggregatedTimeSpentInDays { get; set; }
         public int AggregatedTimeEstimateInDays { get; set; }
+    }
 
+    public class IssueType
+    {
+        public string Name { get; set; }
+        public bool SubTask { get; set; }
     }
 }

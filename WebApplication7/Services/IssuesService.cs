@@ -3,6 +3,7 @@ using WebApplication7.Models;
 using WebApplication7.Repository;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 
 
@@ -108,6 +109,19 @@ namespace WebApplication7.Services
 
             string json = JsonConvert.SerializeObject(queryObject);
             return json;
+        }
+
+
+        public List<Issue> processIssuesList(List<Issue> issues)
+        {
+            //filtering parent issues
+            issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
+            //sorting issues on basics of resolved date
+            var issuesWithNoResolvedDate = issues.Where(issue => String.IsNullOrEmpty(issue.ResolvedDate) || String.IsNullOrWhiteSpace(issue.ResolvedDate)).ToList();
+            issues = issues.Where(issue => !String.IsNullOrEmpty(issue.ResolvedDate) && !String.IsNullOrWhiteSpace(issue.ResolvedDate))
+                .OrderBy(issue => DateTime.ParseExact(issue.ResolvedDate, "dd/MM/yyyy", CultureInfo.InvariantCulture)).ToList();
+            issues.AddRange(issuesWithNoResolvedDate);
+            return issues;
         }
 
        

@@ -21,7 +21,7 @@ namespace WebApplication7.Services
                 .Select(item => new Issue
                 {
                     Id = castValueToGivenType<string>(item["key"]),
-                    IssueType = castValueToGivenType<string>(item["fields"]["issuetype"]["name"]),
+                    IssueType = convertToIssueType(item["fields"]["issuetype"]),
                     IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(item["fields"]["aggregatetimespent"], 
                                                     item["fields"]["aggregatetimeoriginalestimate"]),
                     Summary = castValueToGivenType<string>(item["fields"]["summary"]),
@@ -133,6 +133,18 @@ namespace WebApplication7.Services
                 IssueType = castValueToGivenType<string>(jToken["fields"]["issuetype"]["name"])
             };
             return parent;
+        }
+
+        private IssueType convertToIssueType(JToken jToken)
+        {
+
+            IssueType issueType = new IssueType
+            {
+                Name = castValueToGivenType<string>(jToken["name"]),
+                SubTask = castValueToGivenType<bool>(jToken["subtask"])
+            };
+
+            return issueType;
         }
         
         private EstimatedAndSpentTime convertTimeToEstimatedAndSpentTime(JToken jTokenEstimatedTime, JToken jTokenSpentTime)
