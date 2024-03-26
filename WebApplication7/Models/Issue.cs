@@ -10,11 +10,12 @@
         public string CreatedDate { get; set; }
         public string? ResolvedDate { get; set; }
         public string Priority { get; set; }    
-        public int? StoryPoints { get; set;}
+        public int StoryPoints { get; set;}
         public string Status { get; set; }
         public Parent? Parent { get; set; }
         public TeamBoard? TeamBoard { get; set; }
         public Uri? IssueUrl { get; set; }
+        public double ProductivityRatio { get; set; }
     }
 
     public class TeamBoard

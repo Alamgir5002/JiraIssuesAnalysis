@@ -121,6 +121,8 @@ namespace WebApplication7.Services
             issues = issues.Where(issue => !String.IsNullOrEmpty(issue.ResolvedDate) && !String.IsNullOrWhiteSpace(issue.ResolvedDate))
                 .OrderBy(issue => DateTime.ParseExact(issue.ResolvedDate, "dd/MM/yyyy", CultureInfo.InvariantCulture)).ToList();
             issues.AddRange(issuesWithNoResolvedDate);
+            IssueResponse response = new IssueResponse();
+            response.processIssues(issues);
             return issues;
         }
 
