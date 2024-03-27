@@ -30,7 +30,7 @@
         public Uri ParentUrl { get; set; }
         public string Status { get; set; }
         public string Priority { get; set; }
-        public string IssueType { get; set; }
+        public IssueType IssueType { get; set; }
     }
 
     public class EstimatedAndSpentTime
@@ -45,5 +45,6 @@
     {
         public string Name { get; set; }
         public bool SubTask { get; set; }
+        public string Id { get; set; }
     }
 }

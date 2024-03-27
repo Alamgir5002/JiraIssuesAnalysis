@@ -135,7 +135,7 @@ namespace WebApplication7.Services
                 Summary = castValueToGivenType<string>(jToken["fields"]["summary"]),
                 Status = castValueToGivenType<string>(jToken["fields"]["status"]["name"]),
                 Priority = castValueToGivenType<string>(jToken["fields"]["priority"]["name"]),
-                IssueType = castValueToGivenType<string>(jToken["fields"]["issuetype"]["name"])
+                IssueType = convertToIssueType(jToken["fields"]["issuetype"])
             };
             return parent;
         }
@@ -146,7 +146,8 @@ namespace WebApplication7.Services
             IssueType issueType = new IssueType
             {
                 Name = castValueToGivenType<string>(jToken["name"]),
-                SubTask = castValueToGivenType<bool>(jToken["subtask"])
+                SubTask = castValueToGivenType<bool>(jToken["subtask"]),
+                Id = castValueToGivenType<string>(jToken["id"])
             };
 
             return issueType;
