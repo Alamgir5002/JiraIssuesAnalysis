@@ -13,7 +13,7 @@ namespace WebApplication7.Repository
 
         public Issue AddOrUpdateIssue(Issue issue)
         {
-            Issue existingIssue = getIssueById(issue.Id);
+            Issue? existingIssue = getIssueById(issue.Id);
             if (existingIssue != null)
             {
                 databaseContext.Entry(existingIssue).State = EntityState.Detached;
@@ -57,6 +57,11 @@ namespace WebApplication7.Repository
         public EstimatedAndSpentTime? GetEstimatedAndSpentTimeAgainstIssueId(string issueId)
         {
             return this.databaseContext.EstimatedAndSpentTimes.FirstOrDefault(est => est.IssueId.Equals(issueId));
+        }
+
+        public IEnumerable<Issue> GetAllIssues()
+        {
+            return databaseContext.Issues.Include(issue => issue.IssueEstimatedAndSpentTime).ToList();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication7.Models;
+using WebApplication7.Repository;
 using WebApplication7.Services;
 
 namespace WebApplication7.Controllers
@@ -11,10 +12,12 @@ namespace WebApplication7.Controllers
     {
         private IssuesService issuesService;
         private CustomFieldsService customFieldsService;
-        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService)
+        private IssueRepository issueRepository;
+        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService, IssueRepository issueRepository)
         {
             this.issuesService = issuesService;
             this.customFieldsService = customFieldsService; 
+            this.issueRepository = issueRepository; 
         }
 
         [HttpGet("/releases/{projectId}")]
@@ -66,6 +69,12 @@ namespace WebApplication7.Controllers
             {
                 return BadRequest(exception.Message);   
             }
+        }
+
+        [HttpGet]
+        public List<Issue> GetAllIssues()
+        {
+            return issueRepository.GetAllIssues().ToList();
         }
     }
 }
