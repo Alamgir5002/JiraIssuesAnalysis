@@ -19,13 +19,16 @@ namespace WebApplication7.Services
         private const string ISSUES_KEY = "issues";
         private const string TOTAL_KEY = "total";
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
+        private IssueRepository issueRepository;
         public IssuesService(HttpClientService httpClientService, 
-            SourceCredentialsRepository sourceCredentialsRepository,
-            IssueMapperService issueMapperService)
+               SourceCredentialsRepository sourceCredentialsRepository,
+               IssueMapperService issueMapperService,
+               IssueRepository issueRepository)
         {
             this.sourceCredentialsRepository = sourceCredentialsRepository;
             this.httpClientService = httpClientService;
             this.issueMapperService = issueMapperService;
+            this.issueRepository = issueRepository;
         }
 
         public async Task<List<Release>> FetchReleasesFromSource(string projectId)
@@ -87,6 +90,13 @@ namespace WebApplication7.Services
                 dataClientCursor.TotalRecords = issueMapperService.castValueToGivenType<int>(jsonObject[TOTAL_KEY]);
 
                 var issues = await issueMapperService.MapToIssueObject(jsonObject[ISSUES_KEY], sourceCredentials.SourceURL);
+                issues = issues.GroupBy(i => i.Id).Select(i=>i.First()).ToList();
+
+                foreach(Issue issue in issues)
+                {
+                    issueRepository.AddOrUpdateIssue(issue);
+                }
+
                 issuesList.AddRange(issues);
                 dataClientCursor.Iteration += 1;
 
@@ -115,7 +125,7 @@ namespace WebApplication7.Services
         public List<Issue> processIssuesList(List<Issue> issues)
         {
             //filtering parent issues
-            issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
+            //issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
             //sorting issues on basics of resolved date
             var issuesWithNoResolvedDate = issues.Where(issue => String.IsNullOrEmpty(issue.ResolvedDate) || String.IsNullOrWhiteSpace(issue.ResolvedDate)).ToList();
             issues = issues.Where(issue => !String.IsNullOrEmpty(issue.ResolvedDate) && !String.IsNullOrWhiteSpace(issue.ResolvedDate))

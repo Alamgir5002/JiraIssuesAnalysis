@@ -23,7 +23,7 @@ namespace WebApplication7.Services
             var issues = issuesObject.Select(item => new Issue
             {
                 Id = castValueToGivenType<string>(item["key"]),
-                IssueType = convertToIssueType(item["fields"]["issuetype"]),
+               // IssueType = convertToIssueType(item["fields"]["issuetype"]),
                 IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(
                     item["fields"]["aggregatetimespent"],
                     item["fields"]["aggregatetimeoriginalestimate"]),
@@ -33,9 +33,9 @@ namespace WebApplication7.Services
                 Priority = castValueToGivenType<string>(item["fields"]["priority"]["name"]),
                 StoryPoints = castValueToGivenType<int>(item["fields"][storyPointsCfValue]),
                 Status = castValueToGivenType<string>(item["fields"]["status"]["name"]),
-                Parent = convertToParent(item["fields"]["parent"], sourceUrl),
-                FixVersions = getReleaseList(item["fields"]["fixVersions"]),
-                TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]),
+                //Parent = convertToParent(item["fields"]["parent"], sourceUrl),
+                //FixVersions = getReleaseList(item["fields"]["fixVersions"]),
+                //TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]),
                 IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"])),
                 ProductivityRatio = calculateProductivityRatio(item["fields"][storyPointsCfValue], item["fields"]["aggregatetimespent"])
             });
@@ -134,8 +134,7 @@ namespace WebApplication7.Services
                 ParentUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(jToken["key"])),
                 Summary = castValueToGivenType<string>(jToken["fields"]["summary"]),
                 Status = castValueToGivenType<string>(jToken["fields"]["status"]["name"]),
-                Priority = castValueToGivenType<string>(jToken["fields"]["priority"]["name"]),
-                IssueType = convertToIssueType(jToken["fields"]["issuetype"])
+                Priority = castValueToGivenType<string>(jToken["fields"]["priority"]["name"])
             };
             return parent;
         }

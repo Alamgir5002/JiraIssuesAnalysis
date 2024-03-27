@@ -135,7 +135,6 @@ C:\Users\Dell\source\repos\WebApplication7\WebApplication7\obj\Debug\net8.0\refi
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\obj\Debug\net8.0\WebApplication7.pdb
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\obj\Debug\net8.0\WebApplication7.genruntimeconfig.cache
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\obj\Debug\net8.0\ref\WebApplication7.dll
-C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\Services\specFile.json
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\Namotion.Reflection.dll
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\NJsonSchema.dll
 C:\Users\Dell\source\repos\WebApplication7\WebApplication7\bin\Debug\net8.0\NJsonSchema.Annotations.dll

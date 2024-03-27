@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication7.Models;
 
@@ -10,9 +11,11 @@ using WebApplication7.Models;
 namespace WebApplication7.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240327095023_created-relation-with-estimates")]
+    partial class createdrelationwithestimates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,8 +89,14 @@ namespace WebApplication7.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("IssueTypeId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("IssueUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ParentId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Priority")
                         .IsRequired()
@@ -109,9 +118,86 @@ namespace WebApplication7.Migrations
                     b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("TeamBoardId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Issues");
+                    b.HasIndex("IssueTypeId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("TeamBoardId");
+
+                    b.ToTable("Issue");
+                });
+
+            modelBuilder.Entity("WebApplication7.Models.IssueType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SubTask")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IssueType");
+                });
+
+            modelBuilder.Entity("WebApplication7.Models.Parent", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ParentUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Parent");
+                });
+
+            modelBuilder.Entity("WebApplication7.Models.Release", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("IssueId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReleaseDate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Released")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssueId");
+
+                    b.ToTable("Release");
                 });
 
             modelBuilder.Entity("WebApplication7.Models.SourceCredentials", b =>
@@ -142,6 +228,20 @@ namespace WebApplication7.Migrations
                     b.ToTable("SourceCredentials");
                 });
 
+            modelBuilder.Entity("WebApplication7.Models.TeamBoard", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TeamBoard");
+                });
+
             modelBuilder.Entity("WebApplication7.Models.EstimatedAndSpentTime", b =>
                 {
                     b.HasOne("WebApplication7.Models.Issue", "Issue")
@@ -155,6 +255,36 @@ namespace WebApplication7.Migrations
 
             modelBuilder.Entity("WebApplication7.Models.Issue", b =>
                 {
+                    b.HasOne("WebApplication7.Models.IssueType", "IssueType")
+                        .WithMany()
+                        .HasForeignKey("IssueTypeId");
+
+                    b.HasOne("WebApplication7.Models.Parent", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
+                    b.HasOne("WebApplication7.Models.TeamBoard", "TeamBoard")
+                        .WithMany()
+                        .HasForeignKey("TeamBoardId");
+
+                    b.Navigation("IssueType");
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("TeamBoard");
+                });
+
+            modelBuilder.Entity("WebApplication7.Models.Release", b =>
+                {
+                    b.HasOne("WebApplication7.Models.Issue", null)
+                        .WithMany("FixVersions")
+                        .HasForeignKey("IssueId");
+                });
+
+            modelBuilder.Entity("WebApplication7.Models.Issue", b =>
+                {
+                    b.Navigation("FixVersions");
+
                     b.Navigation("IssueEstimatedAndSpentTime")
                         .IsRequired();
                 });
