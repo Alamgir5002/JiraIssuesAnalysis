@@ -1,4 +1,6 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using WebApplication7.Models;
 using WebApplication7.Repository;
 using WebApplication7.Services;
@@ -20,6 +22,15 @@ builder.Services.AddScoped<HttpClientService>();
 builder.Services.AddScoped<SourceCredentialsRepository>();
 builder.Services.AddScoped<CustomFieldRepository>();
 
+// Configure Hangfire
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+
+builder.Services.AddHangfireServer();
+
 // Configure custom logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
@@ -37,6 +48,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHangfireDashboard();
+
+// Create a recurring job to fetch data against a particular release
+using var scope = app.Services.CreateScope();
+var issuesService = scope.ServiceProvider.GetRequiredService<IssuesService>();
+RecurringJob.AddOrUpdate("JiraIssuesSyncJob", () => issuesService.FetchIssuesAgainstRelease("1.9.6.20"), "*/3 * * * *"); 
 
 app.UseHttpsRedirection();
 
