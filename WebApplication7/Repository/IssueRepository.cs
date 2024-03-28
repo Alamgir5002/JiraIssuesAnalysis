@@ -62,7 +62,7 @@ namespace WebApplication7.Repository
                 .Include(issue => issue.IssueType)
                 .Include(issue => issue.Parent)
                 .Include(issue => issue.TeamBoard)
-                .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release).ToList();
+                .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release);
         }
 
         public async Task<IssueType?> GetIssueTypeByIssueTypeId(string issueTypeId) {
@@ -179,6 +179,19 @@ namespace WebApplication7.Repository
             {
                 await databaseContext.EstimatedAndSpentTimes.AddAsync(issue.IssueEstimatedAndSpentTime);
             }
+        }
+
+
+        public IEnumerable<Issue> GetAllIssuesAgainstFixVersion(string fixVersion)
+        {
+            var issues = databaseContext.Issues.
+                Where(issue => issue.FixVersions.
+                    Any(ir => ir.Release.Name.Equals(fixVersion)))
+                .Include(issue => issue.IssueType)
+                .Include(issue => issue.Parent)
+                .Include(issue => issue.TeamBoard)
+                .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release);
+            return issues;
         }
     }
 }

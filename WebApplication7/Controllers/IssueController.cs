@@ -71,10 +71,16 @@ namespace WebApplication7.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("allIssues")]
         public List<Issue> GetAllIssues()
         {
             return issueRepository.GetAllIssues().ToList();
+        }
+        [HttpGet("allIssues/{fixVersion}")]
+
+        public List<Issue> GetIssuesAgainstFixVersion(string fixVersion)
+        {
+            return issueRepository.GetAllIssuesAgainstFixVersion(fixVersion).ToList();
         }
     }
 }
