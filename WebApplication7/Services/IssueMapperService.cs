@@ -35,7 +35,7 @@ namespace WebApplication7.Services
                 Status = castValueToGivenType<string>(item["fields"]["status"]["name"]),
                 Parent = convertToParent(item["fields"]["parent"], sourceUrl),
                 //FixVersions = getReleaseList(item["fields"]["fixVersions"]),
-                //TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]),
+                TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]),
                 IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"])),
                 ProductivityRatio = calculateProductivityRatio(item["fields"][storyPointsCfValue], item["fields"]["aggregatetimespent"])
             });

@@ -19,15 +19,21 @@ namespace WebApplication7.Models
         public string Status { get; set; }
         public Parent? Parent { get; set; }
         public int? ParentId { get; set; }
-        //public TeamBoard? TeamBoard { get; set; }
+        public TeamBoard? TeamBoard { get; set; }
+        public int? TeamBoardId { get; set; }
         public Uri IssueUrl { get; set; }
         public double ProductivityRatio { get; set; }
     }
 
     public class TeamBoard
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int TeamBoardId { get; set; }
         public string Id { get; set; }  
         public string Name { get; set; }
+        [JsonIgnore]
+        public ICollection<Issue> IssuesList { get; set; }
     }
 
     public class Parent

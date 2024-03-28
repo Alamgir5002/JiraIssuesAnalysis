@@ -28,6 +28,20 @@ namespace WebApplication7.Repository
                 }
             }
 
+            if(issue.TeamBoard!= null) { 
+                var existingTeamBoard = GetTeamBoardById(issue.TeamBoard.Id);   
+                if(existingTeamBoard != null)
+                {
+                    issue.TeamBoard = existingTeamBoard;
+                    issue.ParentId = existingTeamBoard.TeamBoardId;
+                }
+                else
+                {
+                    databaseContext.TeamBoards.Add(issue.TeamBoard);
+                    databaseContext.SaveChanges();  
+                }
+            }
+
             var issueType = GetIssueTypeByIssueTypeId(issue.IssueType.Id);
             if (issueType == null)
             {
@@ -93,7 +107,8 @@ namespace WebApplication7.Repository
             return databaseContext.Issues
                 .Include(issue => issue.IssueEstimatedAndSpentTime)
                 .Include(issue => issue.IssueType)
-                .Include(issue=> issue.Parent).ToList();
+                .Include(issue => issue.Parent)
+                .Include(issue => issue.TeamBoard).ToList();
         }
 
         public IssueType? GetIssueTypeByIssueTypeId(string issueTypeId) {
@@ -102,6 +117,11 @@ namespace WebApplication7.Repository
 
         public Parent? GetParentByParentId(string parentId) {
             return databaseContext.ParentIssues.FirstOrDefault(parent => parent.Id.Equals(parentId));
+        }
+
+        public TeamBoard? GetTeamBoardById(string teamBoardId)
+        {
+            return databaseContext.TeamBoards.FirstOrDefault(teamBoard => teamBoard.Id.Equals(teamBoardId));    
         }
     }
 }

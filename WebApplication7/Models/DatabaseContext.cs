@@ -10,6 +10,7 @@ namespace WebApplication7.Models
         public DbSet<Issue> Issues { get; set; }
         public DbSet<IssueType> IssueTypes { get; set; }    
         public DbSet<Parent> ParentIssues { get; set; }
+        public DbSet<TeamBoard> TeamBoards { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
@@ -39,6 +40,11 @@ namespace WebApplication7.Models
                 issues.HasOne(issue => issue.Parent)
                 .WithMany(parentIssue => parentIssue.ChildIssues)
                 .HasForeignKey(issue => issue.ParentId);
+
+                issues.HasOne(issue => issue.TeamBoard)
+                .WithMany(teamBoard => teamBoard.IssuesList)
+                .HasForeignKey(issue => issue.TeamBoardId);
+
             });
 
             modelBuilder.Entity<IssueType>(issueTypes =>
@@ -49,6 +55,11 @@ namespace WebApplication7.Models
             modelBuilder.Entity<Parent>(parentIssue =>
             {
                 parentIssue.HasIndex(it => it.ParentId).IsUnique(true);
+            });
+
+            modelBuilder.Entity<TeamBoard>(teamBoard =>
+            {
+                teamBoard.HasIndex(teamboard => teamboard.Id).IsUnique(true);
             });
         }
     }
