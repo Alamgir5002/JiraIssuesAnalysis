@@ -94,7 +94,7 @@ namespace WebApplication7.Services
 
                 foreach(Issue issue in issues)
                 {
-                    issueRepository.AddOrUpdateIssue(issue);
+                    await issueRepository.AddOrUpdateIssue(issue);
                 }
 
                 issuesList.AddRange(issues);

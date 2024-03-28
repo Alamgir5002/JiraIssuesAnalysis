@@ -11,52 +11,17 @@ namespace WebApplication7.Repository
             this.databaseContext = databaseContext;
         }
 
-        public Issue AddOrUpdateIssue(Issue issue)
+        public async Task<Issue> AddOrUpdateIssue(Issue issue)
         {
-            issue.FixVersions = AddReleases(issue);
+            issue.FixVersions = await AddReleases(issue);
 
-            if(issue.Parent!= null)
-            {
-                var parentIssue = GetParentByParentId(issue.Parent.Id);
-                if(parentIssue != null)
-                {
-                    issue.Parent = parentIssue;
-                    issue.ParentId = parentIssue.ParentId;
-                }
-                else
-                {
-                    databaseContext.ParentIssues.Add(issue.Parent);
-                    databaseContext.SaveChanges();  
-                }
-            }
+            await CreateOrUpdateParent(issue);
 
-            if(issue.TeamBoard!= null) { 
-                var existingTeamBoard = GetTeamBoardById(issue.TeamBoard.Id);   
-                if(existingTeamBoard != null)
-                {
-                    issue.TeamBoard = existingTeamBoard;
-                    issue.ParentId = existingTeamBoard.TeamBoardId;
-                }
-                else
-                {
-                    databaseContext.TeamBoards.Add(issue.TeamBoard);
-                    databaseContext.SaveChanges();  
-                }
-            }
+            await CreateOrReplaceTeamBoard(issue);
 
-            var issueType = GetIssueTypeByIssueTypeId(issue.IssueType.Id);
-            if (issueType == null)
-            {
-                databaseContext.IssueTypes.Add(issue.IssueType);
-                databaseContext.SaveChanges();
-            }
-            else
-            {
-                issue.IssueType = issueType;
-                issue.IssueTypeId = issueType.IssueTypeId;
-            }
+            await CreateOrReplaceIssueType(issue);
 
-            Issue? existingIssue = getIssueById(issue.Id);
+            Issue? existingIssue = await getIssueById(issue.Id);
             if (existingIssue != null)
             {
                 databaseContext.Entry(existingIssue).State = EntityState.Detached;
@@ -64,26 +29,12 @@ namespace WebApplication7.Repository
             }
             else
             {
-                databaseContext.Issues.Add(issue);
+                await databaseContext.Issues.AddAsync(issue);
             }
 
-            var existingTime = GetEstimatedAndSpentTimeAgainstIssueId(issue.Id);
-            if (existingTime != null)
-            {
-                existingTime.AggregatedTimeSpent = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpent;
-                existingTime.AggregatedTimeSpentInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpentInDays;
-                existingTime.AggregateTimeEstimate = issue.IssueEstimatedAndSpentTime.AggregateTimeEstimate;
-                existingTime.AggregatedTimeEstimateInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeEstimateInDays;
-                databaseContext.Update(existingTime);
-            }
-            else
-            {
-                databaseContext.EstimatedAndSpentTimes.Add(issue.IssueEstimatedAndSpentTime);
-            }
+            await CreateOrReplaceIssueEstimatedAndSpentTime(issue);
 
-
-
-            databaseContext.SaveChanges();
+            await databaseContext.SaveChangesAsync();
             return issue;
         }
 
@@ -94,14 +45,14 @@ namespace WebApplication7.Repository
             return estimatedAndSpentTime;
         }
 
-        public Issue? getIssueById(string issueId)
+        public async Task<Issue?> getIssueById(string issueId)
         {
-            return this.databaseContext.Issues.FirstOrDefault(issue => issue.Id.Equals(issueId));
+            return await this.databaseContext.Issues.FirstOrDefaultAsync(issue => issue.Id.Equals(issueId));
         }
 
-        public EstimatedAndSpentTime? GetEstimatedAndSpentTimeAgainstIssueId(string issueId)
+        public async Task<EstimatedAndSpentTime?> GetEstimatedAndSpentTimeAgainstIssueId(string issueId)
         {
-            return this.databaseContext.EstimatedAndSpentTimes.FirstOrDefault(est => est.IssueId.Equals(issueId));
+            return await this.databaseContext.EstimatedAndSpentTimes.FirstOrDefaultAsync(est => est.IssueId.Equals(issueId));
         }
 
         public IEnumerable<Issue> GetAllIssues()
@@ -113,27 +64,27 @@ namespace WebApplication7.Repository
                 .Include(issue => issue.TeamBoard).ToList();
         }
 
-        public IssueType? GetIssueTypeByIssueTypeId(string issueTypeId) {
-            return databaseContext.IssueTypes.FirstOrDefault(it => it.Id.Equals(issueTypeId));
+        public async Task<IssueType?> GetIssueTypeByIssueTypeId(string issueTypeId) {
+            return await databaseContext.IssueTypes.FirstOrDefaultAsync(it => it.Id.Equals(issueTypeId));
         }
 
-        public Parent? GetParentByParentId(string parentId) {
-            return databaseContext.ParentIssues.FirstOrDefault(parent => parent.Id.Equals(parentId));
+        public async Task<Parent?> GetParentByParentId(string parentId) {
+            return await databaseContext.ParentIssues.FirstOrDefaultAsync(parent => parent.Id.Equals(parentId));
         }
 
-        public TeamBoard? GetTeamBoardById(string teamBoardId)
+        public async Task<TeamBoard?> GetTeamBoardById(string teamBoardId)
         {
-            return databaseContext.TeamBoards.FirstOrDefault(teamBoard => teamBoard.Id.Equals(teamBoardId));    
+            return await databaseContext.TeamBoards.FirstOrDefaultAsync(teamBoard => teamBoard.Id.Equals(teamBoardId));    
         }
 
-        public List<IssueRelease> AddReleases(Issue issue)
+        public async Task<List<IssueRelease>> AddReleases(Issue issue)
         {
             List<IssueRelease> issueReleases = new List<IssueRelease>();
 
             foreach(var release in issue.FixVersions)
             {
                 var ir = new IssueRelease();
-                var existingRelease = GetReleaseById(release.Release.Id);
+                var existingRelease = await GetReleaseById(release.Release.Id);
 
                 if (existingRelease != null)
                 {
@@ -142,8 +93,8 @@ namespace WebApplication7.Repository
                 }
                 else
                 {
-                    databaseContext.Releases.Add(release.Release);
-                    databaseContext.SaveChanges();
+                    await databaseContext.Releases.AddAsync(release.Release);
+                    await databaseContext.SaveChangesAsync();
                     ir.ReleaseId = release.ReleaseId;
                     ir.Release = release.Release;
                 }
@@ -153,13 +104,80 @@ namespace WebApplication7.Repository
                 issueReleases.Add(ir);
             }
             
-
             return issueReleases;
         }
 
-        public Release? GetReleaseById(string releaseId)
+        public async Task<Release?> GetReleaseById(string releaseId)
         {
-            return databaseContext.Releases.FirstOrDefault(release => release.Id.Equals(releaseId));
+            return await databaseContext.Releases.FirstOrDefaultAsync(release => release.Id.Equals(releaseId));
+        }
+
+        public async Task CreateOrUpdateParent(Issue issue)
+        {
+            if(issue.Parent != null)
+            {
+                var parentIssue = await GetParentByParentId(issue.Parent.Id);
+                if (parentIssue != null)
+                {
+                    issue.Parent = parentIssue;
+                    issue.ParentId = parentIssue.ParentId;
+                }
+                else
+                {
+                    await databaseContext.ParentIssues.AddAsync(issue.Parent);
+                    await databaseContext.SaveChangesAsync();
+                }
+            }
+        }
+
+        public async Task CreateOrReplaceTeamBoard(Issue issue)
+        {
+            if (issue.TeamBoard != null)
+            {
+                var existingTeamBoard = await GetTeamBoardById(issue.TeamBoard.Id);
+                if (existingTeamBoard != null)
+                {
+                    issue.TeamBoard = existingTeamBoard;
+                    issue.ParentId = existingTeamBoard.TeamBoardId;
+                }
+                else
+                {
+                    await databaseContext.TeamBoards.AddAsync(issue.TeamBoard);
+                    await databaseContext.SaveChangesAsync();
+                }
+            }
+        }
+
+        public async Task CreateOrReplaceIssueType(Issue issue)
+        {
+            var issueType = await GetIssueTypeByIssueTypeId(issue.IssueType.Id);
+            if (issueType == null)
+            {
+                await databaseContext.IssueTypes.AddAsync(issue.IssueType);
+                await databaseContext.SaveChangesAsync();
+            }
+            else
+            {
+                issue.IssueType = issueType;
+                issue.IssueTypeId = issueType.IssueTypeId;
+            }
+        }
+
+        public async Task CreateOrReplaceIssueEstimatedAndSpentTime(Issue issue)
+        {
+            var existingTime = await GetEstimatedAndSpentTimeAgainstIssueId(issue.Id);
+            if (existingTime != null)
+            {
+                existingTime.AggregatedTimeSpent = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpent;
+                existingTime.AggregatedTimeSpentInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpentInDays;
+                existingTime.AggregateTimeEstimate = issue.IssueEstimatedAndSpentTime.AggregateTimeEstimate;
+                existingTime.AggregatedTimeEstimateInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeEstimateInDays;
+                databaseContext.Update(existingTime);
+            }
+            else
+            {
+                await databaseContext.EstimatedAndSpentTimes.AddAsync(issue.IssueEstimatedAndSpentTime);
+            }
         }
     }
 }
