@@ -23,7 +23,7 @@ namespace WebApplication7.Services
             var issues = issuesObject.Select(item => new Issue
             {
                 Id = castValueToGivenType<string>(item["key"]),
-               // IssueType = convertToIssueType(item["fields"]["issuetype"]),
+                IssueType = convertToIssueType(item["fields"]["issuetype"]),
                 IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(
                     item["fields"]["aggregatetimespent"],
                     item["fields"]["aggregatetimeoriginalestimate"]),

@@ -7,7 +7,8 @@ namespace WebApplication7.Models
     public class Issue
     {
         public string Id { get; set; }
-       // public IssueType IssueType { get; set; }
+        public IssueType IssueType { get; set; }
+        public int IssueTypeId { get; set; }
        // public List<Release>? FixVersions { get; set; }
         public EstimatedAndSpentTime IssueEstimatedAndSpentTime { get; set; }
         public string? Summary {  get; set; }
@@ -52,8 +53,13 @@ namespace WebApplication7.Models
 
     public class IssueType
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int IssueTypeId { get; set; }
         public string Name { get; set; }
         public bool SubTask { get; set; }
         public string Id { get; set; }
+        [JsonIgnore]
+        public ICollection<Issue> IssuesList { get; set; }
     }
 }

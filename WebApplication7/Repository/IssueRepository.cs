@@ -13,6 +13,18 @@ namespace WebApplication7.Repository
 
         public Issue AddOrUpdateIssue(Issue issue)
         {
+            var issueType = GetIssueTypeByIssueTypeId(issue.IssueType.Id);
+            if (issueType == null)
+            {
+                databaseContext.IssueTypes.Add(issue.IssueType);
+                databaseContext.SaveChanges();
+            }
+            else
+            {
+                issue.IssueType = issueType;
+                issue.IssueTypeId = issueType.IssueTypeId;
+            }
+
             Issue? existingIssue = getIssueById(issue.Id);
             if (existingIssue != null)
             {
@@ -38,6 +50,8 @@ namespace WebApplication7.Repository
                 databaseContext.EstimatedAndSpentTimes.Add(issue.IssueEstimatedAndSpentTime);
             }
 
+
+
             databaseContext.SaveChanges();
             return issue;
         }
@@ -61,7 +75,11 @@ namespace WebApplication7.Repository
 
         public IEnumerable<Issue> GetAllIssues()
         {
-            return databaseContext.Issues.Include(issue => issue.IssueEstimatedAndSpentTime).ToList();
+            return databaseContext.Issues.Include(issue => issue.IssueEstimatedAndSpentTime).Include(issue => issue.IssueType).ToList();
+        }
+
+        public IssueType? GetIssueTypeByIssueTypeId(string issueTypeId) {
+            return databaseContext.IssueTypes.FirstOrDefault(it => it.Id.Equals(issueTypeId));
         }
     }
 }

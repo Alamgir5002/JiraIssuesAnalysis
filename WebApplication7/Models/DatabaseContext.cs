@@ -8,6 +8,7 @@ namespace WebApplication7.Models
         public DbSet<CustomField> CustomFields { get; set; }   
         public DbSet<EstimatedAndSpentTime> EstimatedAndSpentTimes { get; set; }
         public DbSet<Issue> Issues { get; set; }
+        public DbSet<IssueType> IssueTypes { get; set; }    
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
@@ -29,6 +30,16 @@ namespace WebApplication7.Models
                 issues.HasOne(issue => issue.IssueEstimatedAndSpentTime)
                 .WithOne(est => est.Issue)
                 .HasForeignKey<EstimatedAndSpentTime>(est => est.IssueId);
+
+                issues.HasOne(issue => issue.IssueType)
+                .WithMany(issueTypes => issueTypes.IssuesList)
+                .HasForeignKey(issueType => issueType.IssueTypeId);
+
+            });
+
+            modelBuilder.Entity<IssueType>(issueTypes =>
+            {
+                issueTypes.HasIndex(it => it.Id).IsUnique(true);
             });
         }
     }
