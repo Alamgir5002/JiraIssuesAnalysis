@@ -9,7 +9,7 @@ namespace WebApplication7.Models
         public string Id { get; set; }
         public IssueType IssueType { get; set; }
         public int IssueTypeId { get; set; }
-       // public List<Release>? FixVersions { get; set; }
+        public ICollection<IssueRelease> FixVersions { get; set; }
         public EstimatedAndSpentTime IssueEstimatedAndSpentTime { get; set; }
         public string? Summary {  get; set; }
         public string CreatedDate { get; set; }

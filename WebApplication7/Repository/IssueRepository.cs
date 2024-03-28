@@ -13,6 +13,8 @@ namespace WebApplication7.Repository
 
         public Issue AddOrUpdateIssue(Issue issue)
         {
+            issue.FixVersions = AddReleases(issue);
+
             if(issue.Parent!= null)
             {
                 var parentIssue = GetParentByParentId(issue.Parent.Id);
@@ -122,6 +124,42 @@ namespace WebApplication7.Repository
         public TeamBoard? GetTeamBoardById(string teamBoardId)
         {
             return databaseContext.TeamBoards.FirstOrDefault(teamBoard => teamBoard.Id.Equals(teamBoardId));    
+        }
+
+        public List<IssueRelease> AddReleases(Issue issue)
+        {
+            List<IssueRelease> issueReleases = new List<IssueRelease>();
+
+            foreach(var release in issue.FixVersions)
+            {
+                var ir = new IssueRelease();
+                var existingRelease = GetReleaseById(release.Release.Id);
+
+                if (existingRelease != null)
+                {
+                    ir.ReleaseId = existingRelease.Id;
+                    ir.Release = existingRelease;  
+                }
+                else
+                {
+                    databaseContext.Releases.Add(release.Release);
+                    databaseContext.SaveChanges();
+                    ir.ReleaseId = release.ReleaseId;
+                    ir.Release = release.Release;
+                }
+
+                ir.Issue = issue;
+                ir.IssueId = issue.Id;
+                issueReleases.Add(ir);
+            }
+            
+
+            return issueReleases;
+        }
+
+        public Release? GetReleaseById(string releaseId)
+        {
+            return databaseContext.Releases.FirstOrDefault(release => release.Id.Equals(releaseId));
         }
     }
 }

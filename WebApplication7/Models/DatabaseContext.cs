@@ -11,6 +11,7 @@ namespace WebApplication7.Models
         public DbSet<IssueType> IssueTypes { get; set; }    
         public DbSet<Parent> ParentIssues { get; set; }
         public DbSet<TeamBoard> TeamBoards { get; set; }
+        public DbSet<Release> Releases { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
@@ -61,6 +62,21 @@ namespace WebApplication7.Models
             {
                 teamBoard.HasIndex(teamboard => teamboard.Id).IsUnique(true);
             });
+
+            modelBuilder.Entity<IssueRelease>(issueRelease =>
+            {
+                issueRelease.HasKey(ir => new { ir.IssueId, ir.ReleaseId });
+                
+                issueRelease.HasOne(ir => ir.Issue)
+                .WithMany(issue => issue.FixVersions)
+                .HasForeignKey(ir => ir.IssueId);
+
+                issueRelease.HasOne(ir => ir.Release)
+                .WithMany(release => release.IssueReleases)
+                .HasForeignKey(ir => ir.ReleaseId);
+
+            });
+
         }
     }
 }
