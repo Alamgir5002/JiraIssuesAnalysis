@@ -13,6 +13,21 @@ namespace WebApplication7.Repository
 
         public Issue AddOrUpdateIssue(Issue issue)
         {
+            if(issue.Parent!= null)
+            {
+                var parentIssue = GetParentByParentId(issue.Parent.Id);
+                if(parentIssue != null)
+                {
+                    issue.Parent = parentIssue;
+                    issue.ParentId = parentIssue.ParentId;
+                }
+                else
+                {
+                    databaseContext.ParentIssues.Add(issue.Parent);
+                    databaseContext.SaveChanges();  
+                }
+            }
+
             var issueType = GetIssueTypeByIssueTypeId(issue.IssueType.Id);
             if (issueType == null)
             {
@@ -75,11 +90,18 @@ namespace WebApplication7.Repository
 
         public IEnumerable<Issue> GetAllIssues()
         {
-            return databaseContext.Issues.Include(issue => issue.IssueEstimatedAndSpentTime).Include(issue => issue.IssueType).ToList();
+            return databaseContext.Issues
+                .Include(issue => issue.IssueEstimatedAndSpentTime)
+                .Include(issue => issue.IssueType)
+                .Include(issue=> issue.Parent).ToList();
         }
 
         public IssueType? GetIssueTypeByIssueTypeId(string issueTypeId) {
             return databaseContext.IssueTypes.FirstOrDefault(it => it.Id.Equals(issueTypeId));
+        }
+
+        public Parent? GetParentByParentId(string parentId) {
+            return databaseContext.ParentIssues.FirstOrDefault(parent => parent.Id.Equals(parentId));
         }
     }
 }

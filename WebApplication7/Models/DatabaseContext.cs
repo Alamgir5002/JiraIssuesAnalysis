@@ -9,6 +9,7 @@ namespace WebApplication7.Models
         public DbSet<EstimatedAndSpentTime> EstimatedAndSpentTimes { get; set; }
         public DbSet<Issue> Issues { get; set; }
         public DbSet<IssueType> IssueTypes { get; set; }    
+        public DbSet<Parent> ParentIssues { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
@@ -35,11 +36,19 @@ namespace WebApplication7.Models
                 .WithMany(issueTypes => issueTypes.IssuesList)
                 .HasForeignKey(issueType => issueType.IssueTypeId);
 
+                issues.HasOne(issue => issue.Parent)
+                .WithMany(parentIssue => parentIssue.ChildIssues)
+                .HasForeignKey(issue => issue.ParentId);
             });
 
             modelBuilder.Entity<IssueType>(issueTypes =>
             {
                 issueTypes.HasIndex(it => it.Id).IsUnique(true);
+            });
+
+            modelBuilder.Entity<Parent>(parentIssue =>
+            {
+                parentIssue.HasIndex(it => it.ParentId).IsUnique(true);
             });
         }
     }

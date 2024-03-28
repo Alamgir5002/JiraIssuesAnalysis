@@ -17,9 +17,10 @@ namespace WebApplication7.Models
         public string Priority { get; set; }    
         public int StoryPoints { get; set;}
         public string Status { get; set; }
-        //public Parent? Parent { get; set; }
+        public Parent? Parent { get; set; }
+        public int? ParentId { get; set; }
         //public TeamBoard? TeamBoard { get; set; }
-        public Uri? IssueUrl { get; set; }
+        public Uri IssueUrl { get; set; }
         public double ProductivityRatio { get; set; }
     }
 
@@ -28,13 +29,19 @@ namespace WebApplication7.Models
         public string Id { get; set; }  
         public string Name { get; set; }
     }
+
     public class Parent
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]   
+        public int ParentId { get; set; }
         public string Id { get; set; }
         public string Summary { get; set; }
         public Uri ParentUrl { get; set; }
         public string Status { get; set; }
         public string Priority { get; set; }
+        [JsonIgnore]
+        public ICollection<Issue> ChildIssues { get; set; }
     }
 
     public class EstimatedAndSpentTime

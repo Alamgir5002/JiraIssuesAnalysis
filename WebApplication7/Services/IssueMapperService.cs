@@ -33,7 +33,7 @@ namespace WebApplication7.Services
                 Priority = castValueToGivenType<string>(item["fields"]["priority"]["name"]),
                 StoryPoints = castValueToGivenType<int>(item["fields"][storyPointsCfValue]),
                 Status = castValueToGivenType<string>(item["fields"]["status"]["name"]),
-                //Parent = convertToParent(item["fields"]["parent"], sourceUrl),
+                Parent = convertToParent(item["fields"]["parent"], sourceUrl),
                 //FixVersions = getReleaseList(item["fields"]["fixVersions"]),
                 //TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]),
                 IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"])),
