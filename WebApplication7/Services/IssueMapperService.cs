@@ -99,38 +99,6 @@ namespace WebApplication7.Services
             {
                 return formattedDate;
             }
-
-            //try
-            //{
-            //    return DateTime.ParseExact(formattedDate, timeFormat, CultureInfo.InvariantCulture).ToString("dd/MM/yyyy");
-            //}
-            //catch (FormatException)
-            //{
-            //    // Attempt parsing with alternative formats (common variations)
-            //    //foreach (var altFormat in new string[] {
-            //    //    "dd/MM/yyyy HH:mm:ss tt", // MM/DD/YYYY format
-            //    //    "yyyy-MM-dd HH:mm:ss", // YYYY-MM-DD format
-            //    //    "M/d/yyyy h:mm:tt" // MM/DD/YYYY with am/pm
-            //    //})
-            //    //{
-            //    //    try
-            //    //    {
-            //    //        return DateTime.ParseExact(formattedDate, altFormat, CultureInfo.InvariantCulture).ToString("dd/MM/yyyy");
-            //    //    }
-            //    //    catch (FormatException)
-            //    //    {
-            //    //        // Ignore exception, continue trying alternative formats
-            //    //    }
-            //    //}
-            //    try
-            //    {
-
-            //    }
-            //}
-
-
-            //DateTime parsedDate = DateTime.ParseExact(formattedDate, timeFormat, 
-            //    System.Globalization.CultureInfo.InvariantCulture);
             string[] parts = formattedDate.Split(' ');
 
             // Check if there's at least one element (date part) after splitting
@@ -142,9 +110,6 @@ namespace WebApplication7.Services
             {
                 return formattedDate; // Return original string if no split
             }
-
-
-            //return parsedDate.ToString("dd/MM/yyyy");
         }
 
         public T castValueToGivenType<T>(JToken jToken)
