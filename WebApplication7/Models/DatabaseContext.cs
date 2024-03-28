@@ -48,20 +48,6 @@ namespace WebApplication7.Models
 
             });
 
-            modelBuilder.Entity<IssueType>(issueTypes =>
-            {
-                issueTypes.HasIndex(it => it.Id).IsUnique(true);
-            });
-
-            modelBuilder.Entity<Parent>(parentIssue =>
-            {
-                parentIssue.HasIndex(it => it.ParentId).IsUnique(true);
-            });
-
-            modelBuilder.Entity<TeamBoard>(teamBoard =>
-            {
-                teamBoard.HasIndex(teamboard => teamboard.Id).IsUnique(true);
-            });
 
             modelBuilder.Entity<IssueRelease>(issueRelease =>
             {

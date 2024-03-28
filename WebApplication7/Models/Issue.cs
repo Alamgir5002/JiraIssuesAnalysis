@@ -6,9 +6,10 @@ namespace WebApplication7.Models
 {
     public class Issue
     {
+        [Key]
         public string Id { get; set; }
         public IssueType IssueType { get; set; }
-        public int IssueTypeId { get; set; }
+        public string IssueTypeId { get; set; }
         public ICollection<IssueRelease> FixVersions { get; set; }
         public EstimatedAndSpentTime IssueEstimatedAndSpentTime { get; set; }
         public string? Summary {  get; set; }
@@ -18,9 +19,9 @@ namespace WebApplication7.Models
         public int StoryPoints { get; set;}
         public string Status { get; set; }
         public Parent? Parent { get; set; }
-        public int? ParentId { get; set; }
+        public string? ParentId { get; set; }
         public TeamBoard? TeamBoard { get; set; }
-        public int? TeamBoardId { get; set; }
+        public string? TeamBoardId { get; set; }
         public Uri IssueUrl { get; set; }
         public double ProductivityRatio { get; set; }
     }
@@ -28,8 +29,6 @@ namespace WebApplication7.Models
     public class TeamBoard
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TeamBoardId { get; set; }
         public string Id { get; set; }  
         public string Name { get; set; }
         [JsonIgnore]
@@ -39,8 +38,6 @@ namespace WebApplication7.Models
     public class Parent
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]   
-        public int ParentId { get; set; }
         public string Id { get; set; }
         public string Summary { get; set; }
         public Uri ParentUrl { get; set; }
@@ -66,11 +63,9 @@ namespace WebApplication7.Models
 
     public class IssueType
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int IssueTypeId { get; set; }
         public string Name { get; set; }
         public bool SubTask { get; set; }
+        [Key]
         public string Id { get; set; }
         [JsonIgnore]
         public ICollection<Issue> IssuesList { get; set; }

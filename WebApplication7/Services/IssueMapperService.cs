@@ -42,29 +42,6 @@ namespace WebApplication7.Services
                 issue.FixVersions = getReleaseList(item["fields"]["fixVersions"], issue);
                 issues.Add(issue);
             }
-            /*var issues = issuesObject.Select(item => {
-                var issue = new Issue
-                {
-                    Id = castValueToGivenType<string>(item["key"]),
-                    IssueType = convertToIssueType(item["fields"]["issuetype"]),
-                    IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(
-                        item["fields"]["aggregatetimespent"],
-                        item["fields"]["aggregatetimeoriginalestimate"]),
-                    Summary = castValueToGivenType<string>(item["fields"]["summary"]),
-                    CreatedDate = getFormattedDate(item["fields"]["created"]),
-                    ResolvedDate = getFormattedDate(item["fields"]["resolutiondate"]),
-                    Priority = castValueToGivenType<string>(item["fields"]["priority"]["name"]),
-                    StoryPoints = castValueToGivenType<int>(item["fields"][storyPointsCfValue]),
-                    Status = castValueToGivenType<string>(item["fields"]["status"]["name"]),
-                    Parent = convertToParent(item["fields"]["parent"], sourceUrl),
-                    FixVersions = getReleaseList(item["fields"]["fixVersions"], issue),
-                    TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]),
-                    IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"])),
-                    ProductivityRatio = calculateProductivityRatio(item["fields"][storyPointsCfValue], item["fields"]["aggregatetimespent"])
-                };
-                return issue;
-            });*/
-
 
             return new List<Issue>(issues);
         }
@@ -90,10 +67,6 @@ namespace WebApplication7.Services
                         Name = castValueToGivenType<string>(item["name"]),
                         ReleaseDate = getFormattedDate(castValueToGivenType<string>(item["releaseDate"]), "yyyy-mm-dd")
                     }
-                    /*Id = castValueToGivenType<string>(item["id"]),
-                    Released = castValueToGivenType<bool>(item["released"]),
-                    Name = castValueToGivenType<string>(item["name"]),
-                    ReleaseDate = getFormattedDate(castValueToGivenType<string>(item["releaseDate"]), "yyyy-mm-dd")*/
                 }) ;
             }
 

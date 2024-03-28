@@ -121,7 +121,7 @@ namespace WebApplication7.Repository
                 if (parentIssue != null)
                 {
                     issue.Parent = parentIssue;
-                    issue.ParentId = parentIssue.ParentId;
+                    issue.ParentId = parentIssue.Id;
                 }
                 else
                 {
@@ -139,7 +139,7 @@ namespace WebApplication7.Repository
                 if (existingTeamBoard != null)
                 {
                     issue.TeamBoard = existingTeamBoard;
-                    issue.ParentId = existingTeamBoard.TeamBoardId;
+                    issue.TeamBoardId = existingTeamBoard.Id;
                 }
                 else
                 {
@@ -160,7 +160,7 @@ namespace WebApplication7.Repository
             else
             {
                 issue.IssueType = issueType;
-                issue.IssueTypeId = issueType.IssueTypeId;
+                issue.IssueTypeId = issueType.Id;
             }
         }
 
