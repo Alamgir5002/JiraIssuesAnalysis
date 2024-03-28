@@ -61,7 +61,8 @@ namespace WebApplication7.Repository
                 .Include(issue => issue.IssueEstimatedAndSpentTime)
                 .Include(issue => issue.IssueType)
                 .Include(issue => issue.Parent)
-                .Include(issue => issue.TeamBoard).ToList();
+                .Include(issue => issue.TeamBoard)
+                .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release).ToList();
         }
 
         public async Task<IssueType?> GetIssueTypeByIssueTypeId(string issueTypeId) {
