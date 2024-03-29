@@ -182,15 +182,15 @@ namespace WebApplication7.Repository
         }
 
 
-        public IEnumerable<Issue> GetAllIssuesAgainstFixVersion(string fixVersion)
+        public async Task<List<Issue>> GetAllIssuesAgainstFixVersion(string fixVersion)
         {
-            var issues = databaseContext.Issues.
+            var issues = await databaseContext.Issues.
                 Where(issue => issue.FixVersions.
                     Any(ir => ir.Release.Name.Equals(fixVersion)))
                 .Include(issue => issue.IssueType)
                 .Include(issue => issue.Parent)
                 .Include(issue => issue.TeamBoard)
-                .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release);
+                .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release).ToListAsync();
             return issues;
         }
     }

@@ -123,9 +123,9 @@ namespace WebApplication7.Services
         }
 
 
-        public IssueResponse GetAllIssuesFromDatabase(string fixVersion)
+        public async Task<IssueResponse> GetAllIssuesFromDatabase(string fixVersion)
         {
-            List<Issue> issue = issueRepository.GetAllIssuesAgainstFixVersion(fixVersion).ToList();
+            List<Issue> issue = await issueRepository.GetAllIssuesAgainstFixVersion(fixVersion);
             return processIssuesList(issue);
         }
 

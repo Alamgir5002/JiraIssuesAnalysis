@@ -78,9 +78,9 @@ namespace WebApplication7.Controllers
         }
         [HttpGet("allIssues/{fixVersion}")]
 
-        public IActionResult GetIssuesAgainstFixVersion(string fixVersion)
+        public async Task<IActionResult> GetIssuesAgainstFixVersion(string fixVersion)
         {
-            var resp = issuesService.GetAllIssuesFromDatabase(fixVersion);
+            var resp = await issuesService.GetAllIssuesFromDatabase(fixVersion);
 
             return Ok(resp);
         }
