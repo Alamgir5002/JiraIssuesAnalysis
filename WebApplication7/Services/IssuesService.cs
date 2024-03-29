@@ -14,14 +14,16 @@ namespace WebApplication7.Services
         private HttpClientService httpClientService;
         private SourceCredentialsRepository sourceCredentialsRepository;
         private IssueMapperService issueMapperService;
+        private SourceService sourceService;
         private const string SOURCE_SEARCH_ENDPOINT = "rest/api/3/search";
         private const int MAX_RESULT = 100;
         private const string ISSUES_KEY = "issues";
         private const string TOTAL_KEY = "total";
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
         private IssueRepository issueRepository;
-        public IssuesService(HttpClientService httpClientService, 
+        public IssuesService(HttpClientService httpClientService,
                SourceCredentialsRepository sourceCredentialsRepository,
+               SourceService sourceService,
                IssueMapperService issueMapperService,
                IssueRepository issueRepository)
         {
@@ -29,15 +31,12 @@ namespace WebApplication7.Services
             this.httpClientService = httpClientService;
             this.issueMapperService = issueMapperService;
             this.issueRepository = issueRepository;
+            this.sourceService = sourceService;
         }
 
         public async Task<List<Release>> FetchReleasesFromSource(string projectId)
         {
-            SourceCredentials sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
-            if (sourceCredentials == null)
-            {
-                throw new Exception($"Source details not found");
-            }
+            SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
 
             string endPoint = String.Format(RELEASES_ENDPOINT, projectId);
             Uri url = new Uri(new Uri(sourceCredentials.SourceURL), endPoint);
@@ -64,11 +63,7 @@ namespace WebApplication7.Services
         public async Task<List<Issue>> FetchIssuesAgainstRelease(string fixVersion)
         {
             List<Issue> issuesList = new List<Issue>();
-            SourceCredentials sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
-            if (sourceCredentials == null)
-            {
-                throw new Exception($"Source details not found");
-            }
+            SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
 
             DataClientCursor dataClientCursor = new DataClientCursor();
             while(dataClientCursor.NextIterationPossible)
