@@ -220,7 +220,7 @@ namespace WebApplication7.Services
                 return 0;
             }
             timeSpent = timeSpent / 3600;
-            return (double) timeSpent/storyPoints;  
+            return (double) storyPoints/timeSpent;  
         }
 
     }
