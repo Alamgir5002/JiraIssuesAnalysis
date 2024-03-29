@@ -46,7 +46,7 @@ app.UseCors(builder => builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod(
 var schedulerFactory = app.Services.GetRequiredService<ISchedulerFactory>();
 var scheduler = await schedulerFactory.GetScheduler();
 
-/*// create a job and tie it to our JiraIssuesSyncJob class
+// create a job and tie it to our JiraIssuesSyncJob class
 var jiraSyncJob = JobBuilder.Create<JiraIssuesSyncJob>()
     .WithIdentity("JiraIssuesSyncJob", "JiraGroup")
     .Build();
@@ -61,7 +61,7 @@ var trigger = TriggerBuilder.Create()
     .Build();
 
 await scheduler.ScheduleJob(jiraSyncJob, trigger);
-*/
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
