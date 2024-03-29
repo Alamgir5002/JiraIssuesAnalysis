@@ -1,7 +1,7 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using Quartz;
+using Microsoft.Extensions.Configuration;
 using WebApplication7.Models;
-using WebApplication7.Quartz.Jobs;
 using WebApplication7.Repository;
 using WebApplication7.Services;
 
@@ -26,9 +26,14 @@ builder.Services.AddScoped<CustomFieldRepository>();
 builder.Services.AddScoped<IssueRepository>();
 builder.Services.AddScoped<ProjectRepository>();
 
-// Schedule Quartz Jobs
-builder.Services.AddQuartz();
-builder.Services.AddQuartzHostedService(opts => opts.WaitForJobsToComplete = true);
+// Configure Hangfire
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+
+builder.Services.AddHangfireServer();
 
 // Configure custom logging
 builder.Logging.ClearProviders();
@@ -42,32 +47,19 @@ builder.Services.AddDbContext<DatabaseContext>(conn => conn.UseSqlServer(connect
 var app = builder.Build();
 app.UseCors(builder => builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
-//// Schedule Quartz Jobs
-var schedulerFactory = app.Services.GetRequiredService<ISchedulerFactory>();
-var scheduler = await schedulerFactory.GetScheduler();
-
-// create a job and tie it to our JiraIssuesSyncJob class
-var jiraSyncJob = JobBuilder.Create<JiraIssuesSyncJob>()
-    .WithIdentity("JiraIssuesSyncJob", "JiraGroup")
-    .Build();
-
-// trigger the job to run now, and then every 40 seconds
-var trigger = TriggerBuilder.Create()
-    .WithIdentity("JiraIssuesSyncJobTrigger", "JiraGroup")
-    .StartNow()
-    .WithSimpleSchedule(x => x
-        .WithIntervalInSeconds(30)
-        .RepeatForever())
-    .Build();
-
-await scheduler.ScheduleJob(jiraSyncJob, trigger);
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseHangfireDashboard();
+
+// Create a recurring job to fetch data against a particular release
+using var scope = app.Services.CreateScope();
+var issuesService = scope.ServiceProvider.GetRequiredService<IssuesService>();
+RecurringJob.AddOrUpdate("JiraIssuesSyncJob", () => issuesService.FetchIssuesAgainstRelease("1.9.6.20"), "*/3 * * * *"); 
 
 app.UseHttpsRedirection();
 
