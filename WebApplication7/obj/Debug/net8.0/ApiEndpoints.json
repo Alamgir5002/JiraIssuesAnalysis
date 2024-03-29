@@ -32,6 +32,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "WebApplication7.Controllers.ProjectController",
+    "Method": "AddProjectSource",
+    "RelativePath": "addSourceProject",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "project",
+        "Type": "WebApplication7.Models.Project",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "WebApplication7.Controllers.IssueController",
     "Method": "GetAllCustomFields",
     "RelativePath": "allCustomFields",

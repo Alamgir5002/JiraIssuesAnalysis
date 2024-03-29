@@ -12,6 +12,7 @@ namespace WebApplication7.Models
         public DbSet<Parent> ParentIssues { get; set; }
         public DbSet<TeamBoard> TeamBoards { get; set; }
         public DbSet<Release> Releases { get; set; }
+        public DbSet<Project> Projects { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
@@ -61,6 +62,11 @@ namespace WebApplication7.Models
                 .WithMany(release => release.IssueReleases)
                 .HasForeignKey(ir => ir.ReleaseId);
 
+            });
+
+            modelBuilder.Entity<Project>(projects =>
+            {
+                projects.HasIndex(project => project.Key).IsUnique(true);
             });
 
         }

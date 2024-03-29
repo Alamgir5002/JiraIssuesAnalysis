@@ -20,7 +20,7 @@ namespace WebApplication7.Repository
 
         public async Task<SourceCredentials> GetSourceCredentialsAsync()
         {
-            SourceCredentials sourceCredentials = await databaseContext.SourceCredentials.FirstAsync();
+            SourceCredentials sourceCredentials = await databaseContext.SourceCredentials.FirstOrDefaultAsync();
             return sourceCredentials;
         }
     }

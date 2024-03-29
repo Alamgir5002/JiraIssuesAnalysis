@@ -11,11 +11,15 @@ namespace WebApplication7.Services
         private SourceService sourceService;
         private const string SOURCE_PROJECTS_ENDPOINT = "rest/api/3/project";
         private HttpClientService httpClientService;
-        public ProjectService(SourceService sourceService, HttpClientService httpClientService, IssuesService issuesService)
+        private ProjectRepository projectRepository;
+
+        public ProjectService(SourceService sourceService, HttpClientService httpClientService, ProjectRepository projectRepository)
         {
             this.sourceService = sourceService;
             this.httpClientService = httpClientService;
+            this.projectRepository = projectRepository;
         }
+
         public async Task<List<Project>> FetchAllProjectsFromSource()
         {
             var sourceDetails = await sourceService.GetSourceCredentialsAsync();
@@ -40,5 +44,14 @@ namespace WebApplication7.Services
 
             return null;
         }
+
+        public async Task<Project> AddSourceProject(Project project)
+        {
+            var resp = await projectRepository.AddSourceProject(project);
+            return resp;
+        }
+
+
     }
 }
+

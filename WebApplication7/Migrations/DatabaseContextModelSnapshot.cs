@@ -189,6 +189,27 @@ namespace WebApplication7.Migrations
                     b.ToTable("ParentIssues");
                 });
 
+            modelBuilder.Entity("WebApplication7.Models.Project", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("Projects");
+                });
+
             modelBuilder.Entity("WebApplication7.Models.Release", b =>
                 {
                     b.Property<string>("Id")
