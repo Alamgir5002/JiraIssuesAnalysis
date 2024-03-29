@@ -104,6 +104,16 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "WebApplication7.Controllers.SourceController",
+    "Method": "GetSourceDetails",
+    "RelativePath": "api/Source",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "WebApplication7.Controllers.IssueController",
     "Method": "GetReleasesFromSource",
     "RelativePath": "releases/{projectId}",
@@ -117,6 +127,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebApplication7.Controllers.ProjectController",
+    "Method": "FetchAllProjectsFromSource",
+    "RelativePath": "source/projects",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

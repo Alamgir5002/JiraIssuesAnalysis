@@ -27,5 +27,19 @@ namespace WebApplication7.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet]
+
+        public async Task<IActionResult> GetSourceDetails()
+        {
+            try
+            {
+                var resp = await sourceService.GetSourceCredentialsAsync();
+                return Ok(resp);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);  
+            }
+        }
     }
 }

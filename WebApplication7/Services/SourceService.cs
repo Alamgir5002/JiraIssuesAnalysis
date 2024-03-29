@@ -56,5 +56,16 @@ namespace WebApplication7.Services
                 throw new Exception("Invalid source token or user email");
             }
         }
+
+        public async Task<SourceCredentials> GetSourceCredentialsAsync()
+        {
+            var sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
+            if(sourceCredentials == null)
+            {
+                throw new Exception("Source details not found");
+            }
+            return sourceCredentials;
+
+        }
     }
 }

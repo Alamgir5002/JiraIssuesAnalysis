@@ -17,6 +17,7 @@ builder.Services.AddScoped<IssuesService>();
 builder.Services.AddScoped<CustomFieldsService>();
 builder.Services.AddScoped<IssueMapperService>();
 builder.Services.AddScoped<HttpClientService>();
+builder.Services.AddScoped<ProjectService>();   
 builder.Services.AddScoped<SourceCredentialsRepository>();
 builder.Services.AddScoped<CustomFieldRepository>();
 builder.Services.AddScoped<IssueRepository>();
