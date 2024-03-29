@@ -47,14 +47,24 @@ namespace WebApplication7.Services
 
         private async Task validateSourceDetails(SourceCredentials sourceCredentials)
         {
-            string basicAuthString = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{sourceCredentials.SourceUserEmail}:{sourceCredentials.SourceAuthToken}"));
             string url = sourceCredentials.SourceURL + JIRA_USER_CREDENTIALS_INFO_URL;
 
-            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url, basicAuthString);
+            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url, sourceCredentials);
             if (!httpResponse.IsSuccessStatusCode)
             {
                 throw new Exception("Invalid source token or user email");
             }
+        }
+
+        public async Task<SourceCredentials> GetSourceCredentialsAsync()
+        {
+            var sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
+            if(sourceCredentials == null)
+            {
+                throw new Exception("Source details not found");
+            }
+            return sourceCredentials;
+
         }
     }
 }

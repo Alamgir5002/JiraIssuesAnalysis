@@ -12,34 +12,33 @@ namespace WebApplication7.Services
     public class IssuesService
     {
         private HttpClientService httpClientService;
-        private SourceCredentialsRepository sourceCredentialsRepository;
         private IssueMapperService issueMapperService;
+        private SourceService sourceService;
         private const string SOURCE_SEARCH_ENDPOINT = "rest/api/3/search";
         private const int MAX_RESULT = 100;
         private const string ISSUES_KEY = "issues";
         private const string TOTAL_KEY = "total";
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
-        public IssuesService(HttpClientService httpClientService, 
-            SourceCredentialsRepository sourceCredentialsRepository,
-            IssueMapperService issueMapperService)
+        private IssueRepository issueRepository;
+        public IssuesService(HttpClientService httpClientService,
+               SourceService sourceService,
+               IssueMapperService issueMapperService,
+               IssueRepository issueRepository)
         {
-            this.sourceCredentialsRepository = sourceCredentialsRepository;
             this.httpClientService = httpClientService;
             this.issueMapperService = issueMapperService;
+            this.issueRepository = issueRepository;
+            this.sourceService = sourceService;
         }
 
         public async Task<List<Release>> FetchReleasesFromSource(string projectId)
         {
-            SourceCredentials sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
-            if (sourceCredentials == null)
-            {
-                throw new Exception($"Source details not found");
-            }
+            SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
 
             string endPoint = String.Format(RELEASES_ENDPOINT, projectId);
             Uri url = new Uri(new Uri(sourceCredentials.SourceURL), endPoint);
 
-            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(), GetBasicAuthHeaders(sourceCredentials));
+            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(), sourceCredentials);
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -52,20 +51,10 @@ namespace WebApplication7.Services
             return releases;
         }
 
-        public string GetBasicAuthHeaders(SourceCredentials sourceCredentials)
-        {
-            string basicAuthString = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{sourceCredentials.SourceUserEmail}:{sourceCredentials.SourceAuthToken}"));
-            return basicAuthString;
-        }
-
         public async Task<List<Issue>> FetchIssuesAgainstRelease(string fixVersion)
         {
             List<Issue> issuesList = new List<Issue>();
-            SourceCredentials sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
-            if (sourceCredentials == null)
-            {
-                throw new Exception($"Source details not found");
-            }
+            SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
 
             DataClientCursor dataClientCursor = new DataClientCursor();
             while(dataClientCursor.NextIterationPossible)
@@ -74,7 +63,7 @@ namespace WebApplication7.Services
                 string requestBody = await getRequestBody($"fixVersion = {fixVersion}", dataClientCursor.Iteration);
                 HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(),
                                                         requestBody,
-                                                        GetBasicAuthHeaders(sourceCredentials));
+                                                        sourceCredentials);
 
                 if (!httpResponse.IsSuccessStatusCode)
                 {
@@ -87,6 +76,13 @@ namespace WebApplication7.Services
                 dataClientCursor.TotalRecords = issueMapperService.castValueToGivenType<int>(jsonObject[TOTAL_KEY]);
 
                 var issues = await issueMapperService.MapToIssueObject(jsonObject[ISSUES_KEY], sourceCredentials.SourceURL);
+                issues = issues.GroupBy(i => i.Id).Select(i=>i.First()).ToList();
+
+                foreach(Issue issue in issues)
+                {
+                    await issueRepository.AddOrUpdateIssue(issue);
+                }
+
                 issuesList.AddRange(issues);
                 dataClientCursor.Iteration += 1;
 
@@ -115,7 +111,7 @@ namespace WebApplication7.Services
         public List<Issue> processIssuesList(List<Issue> issues)
         {
             //filtering parent issues
-            issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
+            //issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
             //sorting issues on basics of resolved date
             var issuesWithNoResolvedDate = issues.Where(issue => String.IsNullOrEmpty(issue.ResolvedDate) || String.IsNullOrWhiteSpace(issue.ResolvedDate)).ToList();
             issues = issues.Where(issue => !String.IsNullOrEmpty(issue.ResolvedDate) && !String.IsNullOrWhiteSpace(issue.ResolvedDate))

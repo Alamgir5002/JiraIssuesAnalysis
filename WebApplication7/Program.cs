@@ -14,13 +14,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<SourceService>();
 builder.Services.AddScoped<IssuesService>();
 builder.Services.AddScoped<CustomFieldsService>();
 builder.Services.AddScoped<IssueMapperService>();
 builder.Services.AddScoped<HttpClientService>();
+  
 builder.Services.AddScoped<SourceCredentialsRepository>();
 builder.Services.AddScoped<CustomFieldRepository>();
+builder.Services.AddScoped<IssueRepository>();
+builder.Services.AddScoped<ProjectRepository>();
 
 // Configure Hangfire
 builder.Services.AddHangfire(configuration => configuration
@@ -41,6 +45,7 @@ string connectionString = builder.Configuration.GetConnectionString("SQLConnecti
 builder.Services.AddDbContext<DatabaseContext>(conn => conn.UseSqlServer(connectionString));
 
 var app = builder.Build();
+app.UseCors(builder => builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
