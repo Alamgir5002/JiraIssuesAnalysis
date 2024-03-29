@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
+using WebApplication7.Models;
 
 namespace WebApplication7.Services
 {
@@ -11,9 +12,9 @@ namespace WebApplication7.Services
             httpClient = new HttpClient();
         }
 
-        public async Task<HttpResponseMessage> SendPostRequest(string endpoint, string jsonData, string basicAuthString)
+        public async Task<HttpResponseMessage> SendPostRequest(string endpoint, string jsonData, SourceCredentials sourceCredentials)
         {
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuthString);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", getBasicAuthHeaders(sourceCredentials));
             // Create StringContent with JSON data
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
@@ -29,11 +30,17 @@ namespace WebApplication7.Services
             return await httpClient.SendAsync(request);
         }
 
-        public async Task<HttpResponseMessage> SendGetRequestWithBasicAuthHeaders(string endpoint, string basicAuthString)
+        public async Task<HttpResponseMessage> SendGetRequestWithBasicAuthHeaders(string endpoint, SourceCredentials sourceCredentials)
         {
             httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuthString);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", getBasicAuthHeaders(sourceCredentials));
             return await httpClient.GetAsync(endpoint);
+        }
+
+        private string getBasicAuthHeaders(SourceCredentials sourceCredentials)
+        {
+            string basicAuthString = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{sourceCredentials.SourceUserEmail}:{sourceCredentials.SourceAuthToken}"));
+            return basicAuthString;
         }
 
     }

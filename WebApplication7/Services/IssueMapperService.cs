@@ -20,48 +20,55 @@ namespace WebApplication7.Services
             string storyPointsCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY);
             string teamBoardCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY);
 
+            List<Issue> issues = new List<Issue>();
             // Select and transform issues
-            var issues = issuesObject.Select(item => new Issue
+            foreach(var item in issuesObject)
             {
-                Id = castValueToGivenType<string>(item["key"]),
-                IssueType = convertToIssueType(item["fields"]["issuetype"]),
-                IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(
-                    item["fields"]["aggregatetimespent"],
-                    item["fields"]["aggregatetimeoriginalestimate"]),
-                Summary = castValueToGivenType<string>(item["fields"]["summary"]),
-                CreatedDate = getFormattedDate(item["fields"]["created"]),
-                ResolvedDate = getFormattedDate(item["fields"]["resolutiondate"]),
-                Priority = castValueToGivenType<string>(item["fields"]["priority"]["name"]),
-                StoryPoints = castValueToGivenType<int>(item["fields"][storyPointsCfValue]),
-                Status = castValueToGivenType<string>(item["fields"]["status"]["name"]),
-                Parent = convertToParent(item["fields"]["parent"], sourceUrl),
-                FixVersions = getReleaseList(item["fields"]["fixVersions"]),
-                TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]),
-                IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"])),
-                ProductivityRatio = calculateProductivityRatio(item["fields"][storyPointsCfValue], item["fields"]["aggregatetimespent"])
-            });
-
+                Issue issue = new Issue();
+                issue.Id = castValueToGivenType<string>(item["key"]);
+                issue.IssueType = convertToIssueType(item["fields"]["issuetype"]);
+                issue.IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(
+                        item["fields"]["aggregatetimespent"],
+                        item["fields"]["aggregatetimeoriginalestimate"]);
+                issue.Summary = castValueToGivenType<string>(item["fields"]["summary"]);
+                issue.CreatedDate = getFormattedDate(item["fields"]["created"]);
+                issue.ResolvedDate = getFormattedDate(item["fields"]["resolutiondate"]);
+                issue.Priority = castValueToGivenType<string>(item["fields"]["priority"]["name"]);
+                issue.StoryPoints = castValueToGivenType<int>(item["fields"][storyPointsCfValue]);
+                issue.Status = castValueToGivenType<string>(item["fields"]["status"]["name"]);
+                issue.Parent = convertToParent(item["fields"]["parent"], sourceUrl);
+                issue.TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]);
+                issue.IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"]));
+                issue.ProductivityRatio = calculateProductivityRatio(item["fields"][storyPointsCfValue], item["fields"]["aggregatetimespent"]);
+                issue.FixVersions = getReleaseList(item["fields"]["fixVersions"], issue);
+                issues.Add(issue);
+            }
 
             return new List<Issue>(issues);
         }
         
 
-        private List<Release> getReleaseList(JToken jsonObject)
+        private List<IssueRelease> getReleaseList(JToken jsonObject, Issue issue)
         {
             if (jsonObject.IsNullOrEmpty())
             {
                 return null;
             }
-            var list = new List<Release>();
+
+            var list = new List<IssueRelease>();
             foreach (var item in jsonObject)
             {
-                list.Add(new Release
+                list.Add(new IssueRelease
                 {
-                    Id = castValueToGivenType<string>(item["id"]),
-                    Released = castValueToGivenType<bool>(item["released"]),
-                    Name = castValueToGivenType<string>(item["name"]),
-                    ReleaseDate = getFormattedDate(castValueToGivenType<string>(item["releaseDate"]), "yyyy-mm-dd")
-                });
+                    Issue = issue,
+                    Release = new Release
+                    {
+                        Id = castValueToGivenType<string>(item["id"]),
+                        Released = castValueToGivenType<bool>(item["released"]),
+                        Name = castValueToGivenType<string>(item["name"]),
+                        ReleaseDate = getFormattedDate(castValueToGivenType<string>(item["releaseDate"]), "yyyy-mm-dd")
+                    }
+                }) ;
             }
 
             return list;
@@ -177,8 +184,7 @@ namespace WebApplication7.Services
                 ParentUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(jToken["key"])),
                 Summary = castValueToGivenType<string>(jToken["fields"]["summary"]),
                 Status = castValueToGivenType<string>(jToken["fields"]["status"]["name"]),
-                Priority = castValueToGivenType<string>(jToken["fields"]["priority"]["name"]),
-                IssueType = convertToIssueType(jToken["fields"]["issuetype"])
+                Priority = castValueToGivenType<string>(jToken["fields"]["priority"]["name"])
             };
             return parent;
         }
@@ -257,7 +263,7 @@ namespace WebApplication7.Services
                 return 0;
             }
             timeSpent = timeSpent / 3600;
-            return (double) timeSpent/storyPoints;  
+            return (double) storyPoints/timeSpent;  
         }
 
     }
