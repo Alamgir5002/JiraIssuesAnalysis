@@ -12,7 +12,6 @@ namespace WebApplication7.Services
     public class IssuesService
     {
         private HttpClientService httpClientService;
-        private SourceCredentialsRepository sourceCredentialsRepository;
         private IssueMapperService issueMapperService;
         private SourceService sourceService;
         private const string SOURCE_SEARCH_ENDPOINT = "rest/api/3/search";
@@ -22,12 +21,10 @@ namespace WebApplication7.Services
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
         private IssueRepository issueRepository;
         public IssuesService(HttpClientService httpClientService,
-               SourceCredentialsRepository sourceCredentialsRepository,
                SourceService sourceService,
                IssueMapperService issueMapperService,
                IssueRepository issueRepository)
         {
-            this.sourceCredentialsRepository = sourceCredentialsRepository;
             this.httpClientService = httpClientService;
             this.issueMapperService = issueMapperService;
             this.issueRepository = issueRepository;
@@ -41,7 +38,7 @@ namespace WebApplication7.Services
             string endPoint = String.Format(RELEASES_ENDPOINT, projectId);
             Uri url = new Uri(new Uri(sourceCredentials.SourceURL), endPoint);
 
-            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(), GetBasicAuthHeaders(sourceCredentials));
+            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(), sourceCredentials);
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -52,12 +49,6 @@ namespace WebApplication7.Services
             List<Release> releases = JsonConvert.DeserializeObject<List<Release>>(responseBody);
             
             return releases;
-        }
-
-        public string GetBasicAuthHeaders(SourceCredentials sourceCredentials)
-        {
-            string basicAuthString = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{sourceCredentials.SourceUserEmail}:{sourceCredentials.SourceAuthToken}"));
-            return basicAuthString;
         }
 
         public async Task<List<Issue>> FetchIssuesAgainstRelease(string fixVersion)
@@ -72,7 +63,7 @@ namespace WebApplication7.Services
                 string requestBody = await getRequestBody($"fixVersion = {fixVersion}", dataClientCursor.Iteration);
                 HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(),
                                                         requestBody,
-                                                        GetBasicAuthHeaders(sourceCredentials));
+                                                        sourceCredentials);
 
                 if (!httpResponse.IsSuccessStatusCode)
                 {
