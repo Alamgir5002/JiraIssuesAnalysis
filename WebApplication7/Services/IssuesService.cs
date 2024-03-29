@@ -108,7 +108,7 @@ namespace WebApplication7.Services
         }
 
 
-        public List<Issue> processIssuesList(List<Issue> issues)
+        public IssueResponse processIssuesList(List<Issue> issues)
         {
             //filtering parent issues
             //issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
@@ -119,8 +119,14 @@ namespace WebApplication7.Services
                 .OrderBy(issue => DateTime.ParseExact(issue.ResolvedDate, sysFormat, CultureInfo.InvariantCulture)).ToList();
             issues.AddRange(issuesWithNoResolvedDate);
             IssueResponse response = new IssueResponse();
-            response.processIssues(issues);
-            return issues;
+            return response.processIssues(issues);
+        }
+
+
+        public IssueResponse GetAllIssuesFromDatabase(string fixVersion)
+        {
+            List<Issue> issue = issueRepository.GetAllIssuesAgainstFixVersion(fixVersion).ToList();
+            return processIssuesList(issue);
         }
 
        
