@@ -33,8 +33,8 @@ namespace WebApplication7.Controllers
             try
             {
                 var response = await issuesService.FetchIssuesAgainstRelease(fixVersion);
-                issuesService.processIssuesList(response);
-                return Ok(response);
+                var issueResponse = issuesService.processIssuesList(response);
+                return Ok(issueResponse);
             }
             catch (Exception ex)
             {
@@ -78,9 +78,11 @@ namespace WebApplication7.Controllers
         }
         [HttpGet("allIssues/{fixVersion}")]
 
-        public List<Issue> GetIssuesAgainstFixVersion(string fixVersion)
+        public async Task<IActionResult> GetIssuesAgainstFixVersion(string fixVersion)
         {
-            return issueRepository.GetAllIssuesAgainstFixVersion(fixVersion).ToList();
+            var resp = await issuesService.GetAllIssuesFromDatabase(fixVersion);
+
+            return Ok(resp);
         }
     }
 }

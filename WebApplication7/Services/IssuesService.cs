@@ -108,18 +108,25 @@ namespace WebApplication7.Services
         }
 
 
-        public List<Issue> processIssuesList(List<Issue> issues)
+        public IssueResponse processIssuesList(List<Issue> issues)
         {
             //filtering parent issues
             //issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
             //sorting issues on basics of resolved date
-            var issuesWithNoResolvedDate = issues.Where(issue => String.IsNullOrEmpty(issue.ResolvedDate) || String.IsNullOrWhiteSpace(issue.ResolvedDate)).ToList();
+            string sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+            var issuesWithNoResolvedDate = issues.Where(issue => String.IsNullOrEmpty(issue.ResolvedDate) || String.IsNullOrWhiteSpace(issue.ResolvedDate) || String.IsNullOrEmpty(issue.CreatedDate) || String.IsNullOrWhiteSpace(issue.CreatedDate)).ToList();
             issues = issues.Where(issue => !String.IsNullOrEmpty(issue.ResolvedDate) && !String.IsNullOrWhiteSpace(issue.ResolvedDate))
-                .OrderBy(issue => DateTime.ParseExact(issue.ResolvedDate, "dd/MM/yyyy", CultureInfo.InvariantCulture)).ToList();
+                .OrderBy(issue => DateTime.ParseExact(issue.ResolvedDate, sysFormat, CultureInfo.InvariantCulture)).ToList();
             issues.AddRange(issuesWithNoResolvedDate);
             IssueResponse response = new IssueResponse();
-            response.processIssues(issues);
-            return issues;
+            return response.processIssues(issues);
+        }
+
+
+        public async Task<IssueResponse> GetAllIssuesFromDatabase(string fixVersion)
+        {
+            List<Issue> issue = await issueRepository.GetAllIssuesAgainstFixVersion(fixVersion);
+            return processIssuesList(issue);
         }
 
        
