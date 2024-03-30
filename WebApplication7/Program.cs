@@ -1,4 +1,6 @@
 using Hangfire;
+using IssueAnalysisExtended.Repository;
+using IssueAnalysisExtended.Services.SyncService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using WebApplication7.Models;
@@ -25,6 +27,9 @@ builder.Services.AddScoped<SourceCredentialsRepository>();
 builder.Services.AddScoped<CustomFieldRepository>();
 builder.Services.AddScoped<IssueRepository>();
 builder.Services.AddScoped<ProjectRepository>();
+builder.Services.AddScoped<ReleasesRespository>();
+
+builder.Services.AddScoped<JiraIssuesSyncServiceJob>();
 
 // Configure Hangfire
 builder.Services.AddHangfire(configuration => configuration
@@ -58,8 +63,9 @@ app.UseHangfireDashboard();
 
 // Create a recurring job to fetch data against a particular release
 using var scope = app.Services.CreateScope();
-var issuesService = scope.ServiceProvider.GetRequiredService<IssuesService>();
-RecurringJob.AddOrUpdate("JiraIssuesSyncJob", () => issuesService.FetchIssuesAgainstRelease("1.9.6.20"), "*/3 * * * *"); 
+var releaseIssuesSyncServiceJob = scope.ServiceProvider.GetRequiredService<JiraIssuesSyncServiceJob>();
+//BackgroundJob.Enqueue(() => releaseIssuesSyncServiceJob.Execute());
+//RecurringJob.AddOrUpdate("ReleaseIssuesSyncJob", () => releaseIssuesSyncServiceJob.Execute(), Cron.HourInterval(2)); 
 
 app.UseHttpsRedirection();
 

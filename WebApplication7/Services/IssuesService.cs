@@ -60,7 +60,7 @@ namespace WebApplication7.Services
             while(dataClientCursor.NextIterationPossible)
             {
                 Uri url = new Uri(new Uri(sourceCredentials.SourceURL), SOURCE_SEARCH_ENDPOINT);
-                string requestBody = await getRequestBody($"fixVersion = {fixVersion}", dataClientCursor.Iteration);
+                string requestBody = await getRequestBody($"fixVersion = '{fixVersion}'", dataClientCursor.Iteration);
                 HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(),
                                                         requestBody,
                                                         sourceCredentials);
