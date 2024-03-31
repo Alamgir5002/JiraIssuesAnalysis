@@ -187,10 +187,13 @@ namespace WebApplication7.Repository
             var issues = await databaseContext.Issues.
                 Where(issue => issue.FixVersions.
                     Any(ir => ir.Release.Name.Equals(fixVersion)))
+                .Include(issue => issue.IssueEstimatedAndSpentTime)
                 .Include(issue => issue.IssueType)
                 .Include(issue => issue.Parent)
                 .Include(issue => issue.TeamBoard)
-                .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release).ToListAsync();
+                .Include(issue => issue.FixVersions)
+                .ThenInclude(ir => ir.Release)
+                .ToListAsync();
             return issues;
         }
     }
