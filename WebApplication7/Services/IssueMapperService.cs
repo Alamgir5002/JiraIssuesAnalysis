@@ -231,5 +231,27 @@ namespace WebApplication7.Services
             return (double) storyPoints/timeSpent;  
         }
 
+        public List<CustomField> ConvertResponseToCustomFields(JArray jsonArray)
+        {
+            List<CustomField> customFields = new List<CustomField>();
+            foreach(var jsonElement in jsonArray)
+            {
+                string cfValue = String.Empty;
+
+                if(jsonElement["schema"]?["customId"]!=null)
+                {
+                    cfValue = castValueToGivenType<string>(jsonElement["schema"]["customId"]);
+                }
+                    
+                customFields.Add(new CustomField
+                {
+                    CustomFieldKey = castValueToGivenType<string>(jsonElement["name"]),
+                    CustomFieldValue = String.IsNullOrEmpty(cfValue) ? String.Empty : cfValue
+                });
+            }
+            customFields = customFields.Where(customField => !String.IsNullOrWhiteSpace(customField.CustomFieldValue)).ToList();
+            return customFields;
+        }
+
     }
 }

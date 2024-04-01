@@ -19,6 +19,7 @@ namespace WebApplication7.Services
         private const string ISSUES_KEY = "issues";
         private const string TOTAL_KEY = "total";
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
+        private const string CUSTOM_FIELD_ENDPOINT = "/rest/api/3/field";
         private IssueRepository issueRepository;
         public IssuesService(HttpClientService httpClientService,
                SourceService sourceService,
@@ -55,7 +56,7 @@ namespace WebApplication7.Services
         {
             List<Issue> issuesList = new List<Issue>();
             SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
-
+            List<string> IssuesIds = new List<string>();
             DataClientCursor dataClientCursor = new DataClientCursor();
             while(dataClientCursor.NextIterationPossible)
             {
@@ -88,6 +89,8 @@ namespace WebApplication7.Services
 
                 dataClientCursor.NextIterationPossible = (dataClientCursor.Iteration * MAX_RESULT) < dataClientCursor.TotalRecords;
             }
+
+            
 
             return issuesList;
         }
@@ -127,6 +130,24 @@ namespace WebApplication7.Services
         {
             List<Issue> issue = await issueRepository.GetAllIssuesAgainstFixVersion(fixVersion);
             return processIssuesList(issue);
+        }
+
+        public async Task<List<CustomField>> getAllCustomFields()
+        {
+            SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
+            Uri url = new Uri(new Uri(sourceCredentials.SourceURL), CUSTOM_FIELD_ENDPOINT);    
+            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(),
+                                                        sourceCredentials);
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error code: {httpResponse.StatusCode}, Content: {await httpResponse.Content.ReadAsStringAsync()}");
+            }
+
+            string responseBody = await httpResponse.Content.ReadAsStringAsync();
+            JArray jsonArray = JArray.Parse(responseBody);
+           
+
+            return issueMapperService.ConvertResponseToCustomFields(jsonArray);
         }
 
        
