@@ -29,14 +29,14 @@ namespace WebApplication7.Services
             return await customFieldRepository.AddCustomField(customFields);
         }
 
-        public async Task<string> GetCustomFieldValueAgainstKey(string customFieldKey)
+        public async Task<string> GetCustomFieldValueAgainstKey(string customFieldKey, bool applyFormatter = true)
         {
             CustomField? customFields = await customFieldRepository.GetCustomFieldByKey(customFieldKey);   
             if(customFields == null)
             {
                 return "";
             }
-            return String.Format(CUSTOM_FIELD_KEY_FORMAT, customFields.CustomFieldValue);
+            return applyFormatter ? String.Format(CUSTOM_FIELD_KEY_FORMAT, customFields.CustomFieldValue) : customFields.CustomFieldValue;
         }
 
         public async Task<List<CustomField>> GetAllCustomFieldsAsync()

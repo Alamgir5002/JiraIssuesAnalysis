@@ -79,11 +79,14 @@ namespace WebApplication7.Services
         {
             var sourceCredentials = await GetSourceCredentialsAsync();
             var sourceCustomFields = await customFieldsService.GetAllCustomFieldsFromSource(sourceCredentials);
-            var userSelectedCustomFields = await customFieldsService.GetAllCustomFieldsAsync();
+            var storyPointsCustomFieldValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY, false);
+            var teamBoardCustomFieldValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY, false);
             var sourceProjects = await projectService.FetchAllProjectsFromSource(sourceCredentials);
             var userSelectedProject = await projectService.GetProjectDetails();
+            var storyPointsCf = sourceCustomFields.Find(cf => cf.CustomFieldValue.Equals(storyPointsCustomFieldValue));
+            var teamBoardsCf = sourceCustomFields.Find(cf => cf.CustomFieldValue.Equals(teamBoardCustomFieldValue));
 
-            return SourceFieldsResponse.processSourceResponse(sourceCustomFields, userSelectedCustomFields, sourceProjects, userSelectedProject);
+            return SourceFieldsResponse.processSourceResponse(sourceCustomFields, teamBoardsCf, storyPointsCf, sourceProjects, userSelectedProject);
         }
     }
 }
