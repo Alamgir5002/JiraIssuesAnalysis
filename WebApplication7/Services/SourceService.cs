@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using IssueAnalysisExtended.Models;
+using System.Text;
 using WebApplication7.Models;
 using WebApplication7.Repository;
 
@@ -11,10 +12,17 @@ namespace WebApplication7.Services
         private const string JIRA_USER_CREDENTIALS_INFO_URL = "/rest/api/3/myself";
         private HttpClientService httpClientService;
         private SourceCredentialsRepository sourceCredentialsRepository;
-        public SourceService(HttpClientService httpClientService, SourceCredentialsRepository sourceCredentialsRepository)
+        private ProjectService projectService;
+        private CustomFieldsService customFieldsService;
+        public SourceService(HttpClientService httpClientService, 
+            SourceCredentialsRepository sourceCredentialsRepository,
+            ProjectService projectService,
+            CustomFieldsService customFieldsService)
         {
             this.httpClientService = httpClientService;
             this.sourceCredentialsRepository = sourceCredentialsRepository;
+            this.projectService = projectService;
+            this.customFieldsService = customFieldsService;
         }
 
         public async Task<SourceCredentials> ValidateAndSaveCredentials(SourceCredentials sourceCredentials)
@@ -63,8 +71,19 @@ namespace WebApplication7.Services
             {
                 throw new Exception("Source details not found");
             }
-            return sourceCredentials;
 
+            return sourceCredentials;
+        }
+
+        public async Task<SourceFieldsResponse> GetSourceFields()
+        {
+            var sourceCredentials = await GetSourceCredentialsAsync();
+            var sourceCustomFields = await customFieldsService.GetAllCustomFieldsFromSource(sourceCredentials);
+            var userSelectedCustomFields = await customFieldsService.GetAllCustomFieldsAsync();
+            var sourceProjects = await projectService.FetchAllProjectsFromSource(sourceCredentials);
+            var userSelectedProject = await projectService.GetProjectDetails();
+
+            return SourceFieldsResponse.processSourceResponse(sourceCustomFields, userSelectedCustomFields, sourceProjects, userSelectedProject);
         }
     }
 }

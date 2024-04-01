@@ -43,33 +43,7 @@ namespace WebApplication7.Controllers
 
         }
 
-        [HttpPost("/addCustomField")]
-        public async Task<IActionResult> AddCustomField(CustomField customFields)
-        {
-            try
-            {
-                var response = await customFieldsService.AddNewCustomField(customFields);   
-                return Ok(response);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
 
-        [HttpGet("/allCustomFields")]
-        public async Task<IActionResult> GetAllCustomFields()
-        {
-            try
-            {
-                var response = await customFieldsService.GetAllCustomFieldsAsync();
-                return Ok(response);    
-            }
-            catch(Exception exception)
-            {
-                return BadRequest(exception.Message);   
-            }
-        }
 
         [HttpGet("allIssues")]
         public List<Issue> GetAllIssues()
@@ -85,19 +59,6 @@ namespace WebApplication7.Controllers
             return Ok(resp);
         }
 
-        [HttpGet("allSourceCustomFields")]
-        public async Task<IActionResult> GetAllCustomFieldsFromSource()
-        {
-            try
-            {
-                var resp = await issuesService.getAllCustomFields();
-                return Ok(resp);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
-                return BadRequest(ex.Message);
-            }
-        }
+
     }
 }

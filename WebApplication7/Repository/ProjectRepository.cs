@@ -1,4 +1,5 @@
-﻿using WebApplication7.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication7.Models;
 
 namespace WebApplication7.Repository
 {
@@ -15,6 +16,11 @@ namespace WebApplication7.Repository
             await databaseContext.Projects.AddAsync(project);
             await databaseContext.SaveChangesAsync();
             return project;
+        }
+
+        public async Task<Project?> GetProjectDetails()
+        {
+            return await databaseContext.Projects.FirstOrDefaultAsync();
         }
     }
 }

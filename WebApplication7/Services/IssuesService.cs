@@ -19,17 +19,19 @@ namespace WebApplication7.Services
         private const string ISSUES_KEY = "issues";
         private const string TOTAL_KEY = "total";
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
-        private const string CUSTOM_FIELD_ENDPOINT = "/rest/api/3/field";
         private IssueRepository issueRepository;
+        private CustomFieldsService customFieldsService;
         public IssuesService(HttpClientService httpClientService,
                SourceService sourceService,
                IssueMapperService issueMapperService,
-               IssueRepository issueRepository)
+               IssueRepository issueRepository,
+               CustomFieldsService customFieldsService)
         {
             this.httpClientService = httpClientService;
             this.issueMapperService = issueMapperService;
             this.issueRepository = issueRepository;
             this.sourceService = sourceService;
+            this.customFieldsService = customFieldsService;
         }
 
         public async Task<List<Release>> FetchReleasesFromSource(string projectId)
@@ -56,12 +58,13 @@ namespace WebApplication7.Services
         {
             List<Issue> issuesList = new List<Issue>();
             SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
-            List<string> IssuesIds = new List<string>();
             DataClientCursor dataClientCursor = new DataClientCursor();
-            while(dataClientCursor.NextIterationPossible)
+            string storyPointsCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY);
+            string teamBoardCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY);
+            while (dataClientCursor.NextIterationPossible)
             {
                 Uri url = new Uri(new Uri(sourceCredentials.SourceURL), SOURCE_SEARCH_ENDPOINT);
-                string requestBody = await getRequestBody($"fixVersion = '{fixVersion}'", dataClientCursor.Iteration);
+                string requestBody = await getRequestBody($"fixVersion = '{fixVersion}'", dataClientCursor.Iteration, storyPointsCfValue, teamBoardCfValue);
                 HttpResponseMessage httpResponse = await httpClientService.SendPostRequest(url.ToString(),
                                                         requestBody,
                                                         sourceCredentials);
@@ -75,8 +78,7 @@ namespace WebApplication7.Services
                 JObject jsonObject = JObject.Parse(responseBody);
                 
                 dataClientCursor.TotalRecords = issueMapperService.castValueToGivenType<int>(jsonObject[TOTAL_KEY]);
-
-                var issues = await issueMapperService.MapToIssueObject(jsonObject[ISSUES_KEY], sourceCredentials.SourceURL);
+                var issues = await issueMapperService.MapToIssueObject(jsonObject[ISSUES_KEY], sourceCredentials.SourceURL, storyPointsCfValue, teamBoardCfValue);
                 issues = issues.GroupBy(i => i.Id).Select(i=>i.First()).ToList();
 
                 foreach(Issue issue in issues)
@@ -95,7 +97,7 @@ namespace WebApplication7.Services
             return issuesList;
         }
 
-        private async Task<string> getRequestBody(string jql, int startAt)
+        private async Task<string> getRequestBody(string jql, int startAt, string storyPointsCfValue, string teamBoardCfValue)
         {
             var queryObject = new
             {
@@ -103,7 +105,7 @@ namespace WebApplication7.Services
                 maxResults = MAX_RESULT,
                 startAt = startAt,
                 expand = new[] { "changelog" },
-                fields = await issueMapperService.getFieldsValues()
+                fields = await issueMapperService.getFieldsValues(storyPointsCfValue, teamBoardCfValue)
             };
 
             string json = JsonConvert.SerializeObject(queryObject);
@@ -132,23 +134,7 @@ namespace WebApplication7.Services
             return processIssuesList(issue);
         }
 
-        public async Task<List<CustomField>> getAllCustomFields()
-        {
-            SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
-            Uri url = new Uri(new Uri(sourceCredentials.SourceURL), CUSTOM_FIELD_ENDPOINT);    
-            HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(),
-                                                        sourceCredentials);
-            if (!httpResponse.IsSuccessStatusCode)
-            {
-                throw new Exception($"Error code: {httpResponse.StatusCode}, Content: {await httpResponse.Content.ReadAsStringAsync()}");
-            }
-
-            string responseBody = await httpResponse.Content.ReadAsStringAsync();
-            JArray jsonArray = JArray.Parse(responseBody);
-           
-
-            return issueMapperService.ConvertResponseToCustomFields(jsonArray);
-        }
+        
 
        
     }

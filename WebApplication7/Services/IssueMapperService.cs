@@ -8,18 +8,9 @@ namespace WebApplication7.Services
 {
     public class IssueMapperService
     {
-        private CustomFieldsService customFieldsService;
-        public IssueMapperService(CustomFieldsService customFieldsService)
-        {
-            this.customFieldsService = customFieldsService;
-        }
 
-        public async Task<List<Issue>> MapToIssueObject(JToken issuesObject, string sourceUrl)
+        public async Task<List<Issue>> MapToIssueObject(JToken issuesObject, string sourceUrl, string storyPointsCfValue, string teamBoardCfValue)
         {
-            // Get custom field values
-            string storyPointsCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY);
-            string teamBoardCfValue = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY);
-
             List<Issue> issues = new List<Issue>();
             // Select and transform issues
             foreach(var item in issuesObject)
@@ -188,7 +179,7 @@ namespace WebApplication7.Services
             return timeInSeconds / (3600 * 8);
         }
 
-        public async Task<List<string>> getFieldsValues()
+        public async Task<List<string>> getFieldsValues(string storyPointsCfValue, string teamBoardsCfValue)
         {
             var fields = new List<string>{
                 "issuetype",
@@ -211,10 +202,8 @@ namespace WebApplication7.Services
                 "fixVersions"
             };
 
-            var storyPointsKey = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.STORY_POINTS_CF_KEY);
-            var teamBoardsKey = await customFieldsService.GetCustomFieldValueAgainstKey(CustomFieldsService.TEAM_BOARD_CF_KEY);
-            fields.Add(storyPointsKey);
-            fields.Add(teamBoardsKey);
+            fields.Add(storyPointsCfValue);
+            fields.Add(teamBoardsCfValue);
 
             return fields;
         }

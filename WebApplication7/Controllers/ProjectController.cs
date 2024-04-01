@@ -15,32 +15,32 @@ namespace WebApplication7.Controllers
             this.projectService = projectService;
         }
 
-        [HttpGet("/source/projects")]
-        public async Task<IActionResult> FetchAllProjectsFromSource()
-        {
-            try
-            {
-                var response = await projectService.FetchAllProjectsFromSource();
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);  
-            }
-        }
+        //[HttpGet("/source/projects")]
+        //public async Task<IActionResult> FetchAllProjectsFromSource()
+        //{
+        //    try
+        //    {
+        //        var response = await projectService.FetchAllProjectsFromSource();
+        //        return Ok(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
-        [HttpPost("/addSourceProject")]
-        public async Task<IActionResult> AddProjectSource(Project project)
-        {
-            try
-            {
-                var resp = await projectService.AddSourceProject(project);
-                return Ok(resp);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[HttpPost("/addSourceProject")]
+        //public async Task<IActionResult> AddProjectSource(Project project)
+        //{
+        //    try
+        //    {
+        //        var resp = await projectService.AddSourceProject(project);
+        //        return Ok(resp);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
     }
 }

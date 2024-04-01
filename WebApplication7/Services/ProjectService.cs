@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using IssueAnalysisExtended.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using WebApplication7.Models;
@@ -8,24 +9,23 @@ namespace WebApplication7.Services
 {
     public class ProjectService
     {
-        private SourceService sourceService;
         private const string SOURCE_PROJECTS_ENDPOINT = "rest/api/3/project";
         private HttpClientService httpClientService;
         private ProjectRepository projectRepository;
 
-        public ProjectService(SourceService sourceService, HttpClientService httpClientService, ProjectRepository projectRepository)
+        public ProjectService(
+            HttpClientService httpClientService, 
+            ProjectRepository projectRepository)
         {
-            this.sourceService = sourceService;
             this.httpClientService = httpClientService;
             this.projectRepository = projectRepository;
         }
 
-        public async Task<List<Project>> FetchAllProjectsFromSource()
+        public async Task<List<Project>> FetchAllProjectsFromSource(SourceCredentials sourceCredentials)
         {
-            var sourceDetails = await sourceService.GetSourceCredentialsAsync();
-            Uri url = new Uri(new Uri(sourceDetails.SourceURL), SOURCE_PROJECTS_ENDPOINT);
+            Uri url = new Uri(new Uri(sourceCredentials.SourceURL), SOURCE_PROJECTS_ENDPOINT);
             HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(),
-                                                        sourceDetails);
+                                                        sourceCredentials);
 
             if (!httpResponse.IsSuccessStatusCode)
             {
@@ -33,22 +33,18 @@ namespace WebApplication7.Services
             }
 
             string responseBody = await httpResponse.Content.ReadAsStringAsync();
-            try
-            {
-                return JsonConvert.DeserializeObject<List<Project>>(responseBody);
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-            return null;
+            return JsonConvert.DeserializeObject<List<Project>>(responseBody);
         }
 
         public async Task<Project> AddSourceProject(Project project)
         {
             var resp = await projectRepository.AddSourceProject(project);
             return resp;
+        }
+
+        public async Task<Project?> GetProjectDetails()
+        {
+            return await projectRepository.GetProjectDetails();
         }
 
 

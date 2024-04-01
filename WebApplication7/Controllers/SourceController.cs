@@ -41,5 +41,62 @@ namespace WebApplication7.Controllers
                 return BadRequest(ex.Message);  
             }
         }
+
+        [HttpGet("/projectsAndCustomFields")]
+        public async Task<IActionResult> GetProjectsAndCustomFields()
+        {
+            try
+            {
+                var resp = await sourceService.GetSourceFields();
+                return Ok(resp);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //[HttpPost("/addCustomField")]
+        //public async Task<IActionResult> AddCustomField(CustomField customFields)
+        //{
+        //    try
+        //    {
+        //        var response = await customFieldsService.AddNewCustomField(customFields);
+        //        return Ok(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+        //[HttpGet("/allCustomFields")]
+        //public async Task<IActionResult> GetAllCustomFields()
+        //{
+        //    try
+        //    {
+        //        var response = await customFieldsService.GetAllCustomFieldsAsync();
+        //        return Ok(response);
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        return BadRequest(exception.Message);
+        //    }
+        //}
+
+        //[HttpGet("allSourceCustomFields")]
+        //public async Task<IActionResult> GetAllCustomFieldsFromSource()
+        //{
+        //    try
+        //    {
+        //        var resp = await customFieldsService.GetAllCustomFieldsFromSource();
+        //        return Ok(resp);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex);
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
     }
 }
