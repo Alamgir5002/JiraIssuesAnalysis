@@ -34,7 +34,7 @@ namespace WebApplication7.Controllers
         {
             try
             {
-                var resp = await sourceService.GetSourceCredentialsAsync();
+                var resp = await sourceService.GetSourceCredentialsAsync(false);
                 return Ok(resp);
             }
             catch(Exception ex)

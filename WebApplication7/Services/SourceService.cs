@@ -64,10 +64,10 @@ namespace WebApplication7.Services
             }
         }
 
-        public async Task<SourceCredentials> GetSourceCredentialsAsync()
+        public async Task<SourceCredentials> GetSourceCredentialsAsync(bool throwException = true)
         {
             var sourceCredentials = await sourceCredentialsRepository.GetSourceCredentialsAsync();
-            if(sourceCredentials == null)
+            if(sourceCredentials == null && throwException)
             {
                 throw new Exception("Source details not found");
             }
