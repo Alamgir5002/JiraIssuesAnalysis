@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using IssueAnalysisExtended.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication7.Models;
 using WebApplication7.Services;
@@ -51,6 +52,20 @@ namespace WebApplication7.Controllers
                 return Ok(resp);
             }
             catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("/projectsAndCustomFields")]
+        public async Task<IActionResult> PostProjectsAndCustomFields(SourceFieldsResponse sourceFieldsResponse)
+        {
+            try
+            {
+                var resp = await sourceService.AddOrUpdateFieldResponse(sourceFieldsResponse);
+                return Ok(resp);
+            }
+            catch(Exception ex)
             {
                 return BadRequest(ex.Message);
             }

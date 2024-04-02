@@ -24,9 +24,9 @@ namespace WebApplication7.Services
             this.issueMapperService = issueMapperService;
         }
 
-        public async Task<CustomField> AddNewCustomField(CustomField customFields)
+        public async Task<CustomField> AddOrUpdateCustomField(CustomField customFields)
         {
-            return await customFieldRepository.AddCustomField(customFields);
+            return await customFieldRepository.AddOrUpdateCustomFields(customFields);
         }
 
         public async Task<string> GetCustomFieldValueAgainstKey(string customFieldKey, bool applyFormatter = true)

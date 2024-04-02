@@ -11,9 +11,19 @@ namespace WebApplication7.Repository
             this.databaseContext = databaseContext; 
         }
 
-        public async Task<CustomField> AddCustomField(CustomField customFields)
+        public async Task<CustomField> AddOrUpdateCustomFields(CustomField customFields)
         {
-            await databaseContext.CustomFields.AddAsync(customFields);
+            var customField = await GetCustomFieldByKey(customFields.CustomFieldKey);
+            if(customField == null)
+            {
+                await databaseContext.CustomFields.AddAsync(customFields);
+            }
+            else
+            {
+                customField.CustomFieldValue = customFields.CustomFieldValue;
+                databaseContext.Entry(customField).State = EntityState.Modified;
+            }
+
             await databaseContext.SaveChangesAsync();
             return customFields;
         }

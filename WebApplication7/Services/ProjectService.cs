@@ -36,9 +36,9 @@ namespace WebApplication7.Services
             return JsonConvert.DeserializeObject<List<Project>>(responseBody);
         }
 
-        public async Task<Project> AddSourceProject(Project project)
+        public async Task<Project> AddOrUpdateSourceProject(Project project)
         {
-            var resp = await projectRepository.AddSourceProject(project);
+            var resp = await projectRepository.AddOrUpdateSourceProject(project);
             return resp;
         }
 

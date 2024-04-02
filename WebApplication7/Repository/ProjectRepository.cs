@@ -11,9 +11,21 @@ namespace WebApplication7.Repository
             this.databaseContext = databaseContext;
         }
 
-        public async Task<Project> AddSourceProject(Project project)
+        public async Task<Project> AddOrUpdateSourceProject(Project project)
         {
-            await databaseContext.Projects.AddAsync(project);
+            var projectDetails = await GetProjectDetails();
+            if(projectDetails == null)
+            {
+                await databaseContext.Projects.AddAsync(project);
+            }
+            else
+            {
+                projectDetails.Name = project.Name;
+                projectDetails.Id = project.Id;
+                projectDetails.Key = project.Key;
+                databaseContext.Entry(projectDetails).State = EntityState.Modified;
+            }
+
             await databaseContext.SaveChangesAsync();
             return project;
         }

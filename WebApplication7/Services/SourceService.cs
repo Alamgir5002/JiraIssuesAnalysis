@@ -88,5 +88,24 @@ namespace WebApplication7.Services
 
             return SourceFieldsResponse.processSourceResponse(sourceCustomFields, teamBoardsCf, storyPointsCf, sourceProjects, userSelectedProject);
         }
+
+        public async Task<SourceFieldsResponse> AddOrUpdateFieldResponse(SourceFieldsResponse sourceFieldsResponse)
+        {
+            if(sourceFieldsResponse.StoryPointsCustomField != null)
+            {
+                sourceFieldsResponse.StoryPointsCustomField.CustomFieldKey = CustomFieldsService.STORY_POINTS_CF_KEY;
+                await this.customFieldsService.AddOrUpdateCustomField(sourceFieldsResponse.StoryPointsCustomField);
+            }
+            if (sourceFieldsResponse.TeamBoardCustomField != null)
+            {
+                sourceFieldsResponse.TeamBoardCustomField.CustomFieldKey = CustomFieldsService.TEAM_BOARD_CF_KEY;
+                await this.customFieldsService.AddOrUpdateCustomField(sourceFieldsResponse.TeamBoardCustomField);
+            }
+            if(sourceFieldsResponse.UserProject !=null)
+            {
+                await this.projectService.AddOrUpdateSourceProject(sourceFieldsResponse.UserProject);
+            }
+            return sourceFieldsResponse;
+        }
     }
 }
