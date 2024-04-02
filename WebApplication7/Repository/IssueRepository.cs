@@ -17,9 +17,9 @@ namespace WebApplication7.Repository
 
             await CreateOrUpdateParent(issue);
 
-            await CreateOrReplaceTeamBoard(issue);
+            await CreateOrUpdateTeamBoard(issue);
 
-            await CreateOrReplaceIssueType(issue);
+            await CreateOrUpdateIssueType(issue);
 
             Issue? existingIssue = await getIssueById(issue.Id);
             if (existingIssue != null)
@@ -52,7 +52,7 @@ namespace WebApplication7.Repository
 
         public async Task<EstimatedAndSpentTime?> GetEstimatedAndSpentTimeAgainstIssueId(string issueId)
         {
-            return await this.databaseContext.EstimatedAndSpentTimes.FirstOrDefaultAsync(est => est.IssueId.Equals(issueId));
+            return await this.databaseContext.EstimatedAndSpentTimes.FirstOrDefaultAsync(est => est.Id.Equals(issueId));
         }
 
         public IEnumerable<Issue> GetAllIssues()
@@ -95,10 +95,11 @@ namespace WebApplication7.Repository
                 else
                 {
                     await databaseContext.Releases.AddAsync(release.Release);
-                    await databaseContext.SaveChangesAsync();
                     ir.ReleaseId = release.ReleaseId;
                     ir.Release = release.Release;
                 }
+
+                await databaseContext.SaveChangesAsync();
 
                 ir.Issue = issue;
                 ir.IssueId = issue.Id;
@@ -126,12 +127,12 @@ namespace WebApplication7.Repository
                 else
                 {
                     await databaseContext.ParentIssues.AddAsync(issue.Parent);
-                    await databaseContext.SaveChangesAsync();
                 }
+                await databaseContext.SaveChangesAsync();
             }
         }
 
-        public async Task CreateOrReplaceTeamBoard(Issue issue)
+        public async Task CreateOrUpdateTeamBoard(Issue issue)
         {
             if (issue.TeamBoard != null)
             {
@@ -144,24 +145,24 @@ namespace WebApplication7.Repository
                 else
                 {
                     await databaseContext.TeamBoards.AddAsync(issue.TeamBoard);
-                    await databaseContext.SaveChangesAsync();
                 }
+                await databaseContext.SaveChangesAsync();
             }
         }
 
-        public async Task CreateOrReplaceIssueType(Issue issue)
+        public async Task CreateOrUpdateIssueType(Issue issue)
         {
             var issueType = await GetIssueTypeByIssueTypeId(issue.IssueType.Id);
             if (issueType == null)
             {
                 await databaseContext.IssueTypes.AddAsync(issue.IssueType);
-                await databaseContext.SaveChangesAsync();
             }
             else
             {
                 issue.IssueType = issueType;
                 issue.IssueTypeId = issueType.Id;
             }
+            await databaseContext.SaveChangesAsync();
         }
 
         public async Task CreateOrReplaceIssueEstimatedAndSpentTime(Issue issue)
@@ -169,10 +170,9 @@ namespace WebApplication7.Repository
             var existingTime = await GetEstimatedAndSpentTimeAgainstIssueId(issue.Id);
             if (existingTime != null)
             {
-                existingTime.AggregatedTimeSpent = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpent;
-                existingTime.AggregatedTimeSpentInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpentInDays;
                 existingTime.AggregateTimeEstimate = issue.IssueEstimatedAndSpentTime.AggregateTimeEstimate;
                 existingTime.AggregatedTimeEstimateInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeEstimateInDays;
+                existingTime.AggregatedTimeSpentInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpentInDays;
                 databaseContext.Update(existingTime);
             }
             else
@@ -180,7 +180,6 @@ namespace WebApplication7.Repository
                 await databaseContext.EstimatedAndSpentTimes.AddAsync(issue.IssueEstimatedAndSpentTime);
             }
         }
-
 
         public async Task<List<Issue>> GetAllIssuesAgainstFixVersion(string fixVersion)
         {

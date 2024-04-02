@@ -7,7 +7,7 @@ using WebApplication7.Models;
 
 #nullable disable
 
-namespace WebApplication7.Migrations
+namespace IssueAnalysisExtended.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
     partial class DatabaseContextModelSnapshot : ModelSnapshot
@@ -47,11 +47,8 @@ namespace WebApplication7.Migrations
 
             modelBuilder.Entity("WebApplication7.Models.EstimatedAndSpentTime", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("AggregateTimeEstimate")
                         .HasColumnType("float");
@@ -65,14 +62,7 @@ namespace WebApplication7.Migrations
                     b.Property<int>("AggregatedTimeSpentInDays")
                         .HasColumnType("int");
 
-                    b.Property<string>("IssueId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("IssueId")
-                        .IsUnique();
 
                     b.ToTable("EstimatedAndSpentTimes");
                 });
@@ -276,7 +266,7 @@ namespace WebApplication7.Migrations
                 {
                     b.HasOne("WebApplication7.Models.Issue", "Issue")
                         .WithOne("IssueEstimatedAndSpentTime")
-                        .HasForeignKey("WebApplication7.Models.EstimatedAndSpentTime", "IssueId")
+                        .HasForeignKey("WebApplication7.Models.EstimatedAndSpentTime", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

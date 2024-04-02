@@ -33,7 +33,7 @@ namespace WebApplication7.Models
                 issues.HasKey(issue => issue.Id);
                 issues.HasOne(issue => issue.IssueEstimatedAndSpentTime)
                 .WithOne(est => est.Issue)
-                .HasForeignKey<EstimatedAndSpentTime>(est => est.IssueId);
+                .HasForeignKey<EstimatedAndSpentTime>(est => est.Id);
 
                 issues.HasOne(issue => issue.IssueType)
                 .WithMany(issueTypes => issueTypes.IssuesList)

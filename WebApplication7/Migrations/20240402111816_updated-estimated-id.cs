@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace WebApplication7.Migrations
+namespace IssueAnalysisExtended.Migrations
 {
     /// <inheritdoc />
-    public partial class initalMigration : Migration
+    public partial class updatedestimatedid : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -148,20 +148,18 @@ namespace WebApplication7.Migrations
                 name: "EstimatedAndSpentTimes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AggregatedTimeSpent = table.Column<double>(type: "float", nullable: false),
                     AggregateTimeEstimate = table.Column<double>(type: "float", nullable: false),
                     AggregatedTimeSpentInDays = table.Column<int>(type: "int", nullable: false),
-                    AggregatedTimeEstimateInDays = table.Column<int>(type: "int", nullable: false),
-                    IssueId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    AggregatedTimeEstimateInDays = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_EstimatedAndSpentTimes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EstimatedAndSpentTimes_Issues_IssueId",
-                        column: x => x.IssueId,
+                        name: "FK_EstimatedAndSpentTimes_Issues_Id",
+                        column: x => x.Id,
                         principalTable: "Issues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -195,12 +193,6 @@ namespace WebApplication7.Migrations
                 name: "IX_CustomFields_CustomFieldKey",
                 table: "CustomFields",
                 column: "CustomFieldKey",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EstimatedAndSpentTimes_IssueId",
-                table: "EstimatedAndSpentTimes",
-                column: "IssueId",
                 unique: true);
 
             migrationBuilder.CreateIndex(

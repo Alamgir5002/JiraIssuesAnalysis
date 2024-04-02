@@ -20,7 +20,7 @@ namespace WebApplication7.Services
                 issue.IssueType = convertToIssueType(item["fields"]["issuetype"]);
                 issue.IssueEstimatedAndSpentTime = convertTimeToEstimatedAndSpentTime(
                         item["fields"]["aggregatetimespent"],
-                        item["fields"]["aggregatetimeoriginalestimate"]);
+                        item["fields"]["aggregatetimeoriginalestimate"], issue.Id);
                 issue.Summary = castValueToGivenType<string>(item["fields"]["summary"]);
                 issue.CreatedDate = getFormattedDate(item["fields"]["created"]);
                 issue.ResolvedDate = getFormattedDate(item["fields"]["resolutiondate"]);
@@ -158,18 +158,18 @@ namespace WebApplication7.Services
             return issueType;
         }
         
-        private EstimatedAndSpentTime convertTimeToEstimatedAndSpentTime(JToken jTokenEstimatedTime, JToken jTokenSpentTime)
+        private EstimatedAndSpentTime convertTimeToEstimatedAndSpentTime(JToken jTokenSpentTime, JToken jTokenEstimatedTime, string id)
         {
             int estimatedTime = castValueToGivenType<int>(jTokenEstimatedTime);
-           int timeSpent = castValueToGivenType<int>(jTokenSpentTime);
-
+            int timeSpent = castValueToGivenType<int>(jTokenSpentTime);
 
             EstimatedAndSpentTime estimatedAndSpentTime = new EstimatedAndSpentTime
             {
                 AggregateTimeEstimate = estimatedTime,
                 AggregatedTimeEstimateInDays = calculateTimeInDays(estimatedTime),
                 AggregatedTimeSpent = timeSpent,
-                AggregatedTimeSpentInDays = calculateTimeInDays(timeSpent)
+                AggregatedTimeSpentInDays = calculateTimeInDays(timeSpent),
+                Id = id
             };
             return estimatedAndSpentTime;
         }

@@ -49,16 +49,14 @@ namespace WebApplication7.Models
 
     public class EstimatedAndSpentTime
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
         public double AggregatedTimeSpent { get; set; }
         public double AggregateTimeEstimate { get; set; }
         public int AggregatedTimeSpentInDays { get; set; }
         public int AggregatedTimeEstimateInDays { get; set; }
         [JsonIgnore]
         public Issue Issue { get; set; }
-        public string IssueId { get; set; }
+        [Key]
+        public string Id { get; set; }
     }
 
     public class IssueType
