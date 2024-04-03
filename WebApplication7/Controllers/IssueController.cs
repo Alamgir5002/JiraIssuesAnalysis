@@ -23,8 +23,16 @@ namespace WebApplication7.Controllers
         [HttpGet("/all/releases")]
         public async Task<IActionResult> GetReleasesFromSource()
         {
-            List<Release> releasesList = await issuesService.FetchReleasesFromSource();
-            return Ok(releasesList);
+            try
+            {
+                List<Release> releasesList = await issuesService.FetchReleasesFromSource();
+                return Ok(releasesList);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
 
         [HttpGet("/{fixVersion}")]
