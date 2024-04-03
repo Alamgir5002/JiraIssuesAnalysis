@@ -1,4 +1,5 @@
-﻿using IssueAnalysisExtended.Repository.Interfaces;
+﻿using IssueAnalysisExtended.Repository;
+using IssueAnalysisExtended.Repository.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication7.Models;
@@ -12,7 +13,10 @@ namespace WebApplication7.Controllers
     public class IssueController : ControllerBase
     {
         private IssuesService issuesService;
-        public IssueController(IssuesService issuesService)
+        private CustomFieldsService customFieldsService;
+        private IssueRepository issueRepository;
+        private readonly SyncedReleasesRespository syncedReleasesRespository;
+        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService, IssueRepository issueRepository)
         {
             this.issuesService = issuesService;
         }
@@ -53,6 +57,30 @@ namespace WebApplication7.Controllers
             var resp = await issuesService.GetAllIssuesFromDatabase(fixVersion);
 
             return Ok(resp);
+        }
+
+        [HttpGet("/release/{fixVersion}")]
+        public async Task<IActionResult> GetIssuesAgainstSyncedOrLiveRelease(string fixVersion)
+        {
+            if ( syncedReleasesRespository.GetRelease(fixVersion) != null)
+            {
+                var resp = await issuesService.GetAllIssuesFromDatabase(fixVersion);
+                return Ok(resp);
+            }
+            else
+            {
+                try
+                {
+                    var response = await issuesService.FetchIssuesAgainstRelease(fixVersion);
+                    var issueResponse = issuesService.processIssuesList(response);
+                    await syncedReleasesRespository.AddSyncedReleaseAsync(new IssueAnalysisExtended.Models.SyncedRelease { Name = fixVersion });
+                    return Ok(issueResponse);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
         }
     }
 }
