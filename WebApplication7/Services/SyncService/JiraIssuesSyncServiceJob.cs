@@ -1,14 +1,15 @@
 ﻿using IssueAnalysisExtended.Repository;
+using IssueAnalysisExtended.Repository.Interfaces;
 using WebApplication7.Services;
 
 namespace IssueAnalysisExtended.Services.SyncService
 {
     public class JiraIssuesSyncServiceJob
     {
-        private readonly ReleasesRespository releasesRespository;
+        private readonly IReleaseRepository releasesRespository;
         private readonly IssuesService issuesService;
 
-        public JiraIssuesSyncServiceJob(ReleasesRespository _releasesRespository, IssuesService _issuesService) 
+        public JiraIssuesSyncServiceJob(IReleaseRepository _releasesRespository, IssuesService _issuesService) 
         {
             releasesRespository = _releasesRespository;
             issuesService = _issuesService;

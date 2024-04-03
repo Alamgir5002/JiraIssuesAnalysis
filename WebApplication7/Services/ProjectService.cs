@@ -1,4 +1,5 @@
 ﻿using IssueAnalysisExtended.Models;
+using IssueAnalysisExtended.Repository.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -11,11 +12,11 @@ namespace WebApplication7.Services
     {
         private const string SOURCE_PROJECTS_ENDPOINT = "rest/api/3/project";
         private HttpClientService httpClientService;
-        private ProjectRepository projectRepository;
+        private IProjectRepository projectRepository;
 
         public ProjectService(
             HttpClientService httpClientService, 
-            ProjectRepository projectRepository)
+            IProjectRepository projectRepository)
         {
             this.httpClientService = httpClientService;
             this.projectRepository = projectRepository;

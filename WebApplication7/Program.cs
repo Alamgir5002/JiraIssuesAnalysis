@@ -1,5 +1,6 @@
 using Hangfire;
 using IssueAnalysisExtended.Repository;
+using IssueAnalysisExtended.Repository.Interfaces;
 using IssueAnalysisExtended.Services.SyncService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,11 +24,15 @@ builder.Services.AddScoped<CustomFieldsService>();
 builder.Services.AddScoped<IssueMapperService>();
 builder.Services.AddScoped<HttpClientService>();
   
-builder.Services.AddScoped<SourceCredentialsRepository>();
-builder.Services.AddScoped<CustomFieldRepository>();
-builder.Services.AddScoped<IssueRepository>();
-builder.Services.AddScoped<ProjectRepository>();
-builder.Services.AddScoped<ReleasesRespository>();
+builder.Services.AddScoped<ISourceCredentialsRepository, SourceCredentialsRepository>();
+builder.Services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
+builder.Services.AddScoped<IIssueRepository, IssueRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IReleaseRepository, ReleasesRespository>();
+builder.Services.AddScoped<IParentRepository, ParentRepository>();
+builder.Services.AddScoped<ITeamboardRepository, TeamboardRepository>();
+builder.Services.AddScoped<IIssueTypeRepository, IssueTypeRepository>();
+builder.Services.AddScoped<IIssueEstimatedAndSpentTimeRepository, IssueEstimatedAndSpentTimeRepository>();
 
 builder.Services.AddScoped<JiraIssuesSyncServiceJob>();
 

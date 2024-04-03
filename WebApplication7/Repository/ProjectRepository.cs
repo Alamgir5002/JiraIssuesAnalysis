@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IssueAnalysisExtended.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using WebApplication7.Models;
 
 namespace WebApplication7.Repository
 {
-    public class ProjectRepository
+    public class ProjectRepository: IProjectRepository
     {
         private DatabaseContext databaseContext;
         public ProjectRepository(DatabaseContext databaseContext)

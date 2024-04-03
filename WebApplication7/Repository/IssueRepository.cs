@@ -1,25 +1,41 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IssueAnalysisExtended.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using WebApplication7.Models;
 
 namespace WebApplication7.Repository
 {
-    public class IssueRepository
+    public class IssueRepository: IIssueRepository
     {
         private DatabaseContext databaseContext;
-        public IssueRepository(DatabaseContext databaseContext)
+        private IReleaseRepository releaseRepository;
+        private IParentRepository parentRepository;
+        private ITeamboardRepository teamboardRepository;
+        private IIssueTypeRepository issueTypeRepository;
+        private IIssueEstimatedAndSpentTimeRepository issueEstimatedAndSpentTimeRepository;
+        public IssueRepository(DatabaseContext databaseContext,
+            IReleaseRepository releaseRepository,
+            IParentRepository parentRepository,
+            ITeamboardRepository teamboardRepository,
+            IIssueTypeRepository issueTypeRepository,
+            IIssueEstimatedAndSpentTimeRepository issueEstimatedAndSpentTimeRepository)
         {
             this.databaseContext = databaseContext;
+            this.releaseRepository = releaseRepository;
+            this.parentRepository = parentRepository;
+            this.teamboardRepository = teamboardRepository;
+            this.issueTypeRepository = issueTypeRepository;
+            this.issueEstimatedAndSpentTimeRepository = issueEstimatedAndSpentTimeRepository;
         }
 
         public async Task<Issue> AddOrUpdateIssue(Issue issue)
         {
-            issue.FixVersions = await AddReleases(issue);
+            issue.FixVersions = await releaseRepository.AddOrUpdateIssueReleases(issue);
 
-            await CreateOrUpdateParent(issue);
+            await parentRepository.CreateOrUpdateParent(issue); 
 
-            await CreateOrUpdateTeamBoard(issue);
+            await teamboardRepository.CreateOrUpdateTeamBoard(issue);
 
-            await CreateOrUpdateIssueType(issue);
+            await issueTypeRepository.CreateOrUpdateIssueType(issue);
 
             Issue? existingIssue = await getIssueById(issue.Id);
             if (existingIssue != null)
@@ -32,28 +48,19 @@ namespace WebApplication7.Repository
                 await databaseContext.Issues.AddAsync(issue);
             }
 
-            await CreateOrReplaceIssueEstimatedAndSpentTime(issue);
+            await issueEstimatedAndSpentTimeRepository.CreateOrReplaceIssueEstimatedAndSpentTime(issue);
 
             await databaseContext.SaveChangesAsync();
             return issue;
         }
 
-        public EstimatedAndSpentTime AddEstimateAndSpentTime(EstimatedAndSpentTime estimatedAndSpentTime)
-        {
-            databaseContext.EstimatedAndSpentTimes.Add(estimatedAndSpentTime);
-            databaseContext.SaveChanges();
-            return estimatedAndSpentTime;
-        }
 
-        public async Task<Issue?> getIssueById(string issueId)
+
+        private async Task<Issue?> getIssueById(string issueId)
         {
             return await this.databaseContext.Issues.FirstOrDefaultAsync(issue => issue.Id.Equals(issueId));
         }
 
-        public async Task<EstimatedAndSpentTime?> GetEstimatedAndSpentTimeAgainstIssueId(string issueId)
-        {
-            return await this.databaseContext.EstimatedAndSpentTimes.FirstOrDefaultAsync(est => est.Id.Equals(issueId));
-        }
 
         public IEnumerable<Issue> GetAllIssues()
         {
@@ -63,122 +70,6 @@ namespace WebApplication7.Repository
                 .Include(issue => issue.Parent)
                 .Include(issue => issue.TeamBoard)
                 .Include(issue => issue.FixVersions).ThenInclude(ir => ir.Release);
-        }
-
-        public async Task<IssueType?> GetIssueTypeByIssueTypeId(string issueTypeId) {
-            return await databaseContext.IssueTypes.FirstOrDefaultAsync(it => it.Id.Equals(issueTypeId));
-        }
-
-        public async Task<Parent?> GetParentByParentId(string parentId) {
-            return await databaseContext.ParentIssues.FirstOrDefaultAsync(parent => parent.Id.Equals(parentId));
-        }
-
-        public async Task<TeamBoard?> GetTeamBoardById(string teamBoardId)
-        {
-            return await databaseContext.TeamBoards.FirstOrDefaultAsync(teamBoard => teamBoard.Id.Equals(teamBoardId));    
-        }
-
-        public async Task<List<IssueRelease>> AddReleases(Issue issue)
-        {
-            List<IssueRelease> issueReleases = new List<IssueRelease>();
-
-            foreach(var release in issue.FixVersions)
-            {
-                var ir = new IssueRelease();
-                var existingRelease = await GetReleaseById(release.Release.Id);
-
-                if (existingRelease != null)
-                {
-                    ir.ReleaseId = existingRelease.Id;
-                    ir.Release = existingRelease;  
-                }
-                else
-                {
-                    await databaseContext.Releases.AddAsync(release.Release);
-                    ir.ReleaseId = release.ReleaseId;
-                    ir.Release = release.Release;
-                }
-
-                await databaseContext.SaveChangesAsync();
-
-                ir.Issue = issue;
-                ir.IssueId = issue.Id;
-                issueReleases.Add(ir);
-            }
-            
-            return issueReleases;
-        }
-
-        public async Task<Release?> GetReleaseById(string releaseId)
-        {
-            return await databaseContext.Releases.FirstOrDefaultAsync(release => release.Id.Equals(releaseId));
-        }
-
-        public async Task CreateOrUpdateParent(Issue issue)
-        {
-            if(issue.Parent != null)
-            {
-                var parentIssue = await GetParentByParentId(issue.Parent.Id);
-                if (parentIssue != null)
-                {
-                    issue.Parent = parentIssue;
-                    issue.ParentId = parentIssue.Id;
-                }
-                else
-                {
-                    await databaseContext.ParentIssues.AddAsync(issue.Parent);
-                }
-                await databaseContext.SaveChangesAsync();
-            }
-        }
-
-        public async Task CreateOrUpdateTeamBoard(Issue issue)
-        {
-            if (issue.TeamBoard != null)
-            {
-                var existingTeamBoard = await GetTeamBoardById(issue.TeamBoard.Id);
-                if (existingTeamBoard != null)
-                {
-                    issue.TeamBoard = existingTeamBoard;
-                    issue.TeamBoardId = existingTeamBoard.Id;
-                }
-                else
-                {
-                    await databaseContext.TeamBoards.AddAsync(issue.TeamBoard);
-                }
-                await databaseContext.SaveChangesAsync();
-            }
-        }
-
-        public async Task CreateOrUpdateIssueType(Issue issue)
-        {
-            var issueType = await GetIssueTypeByIssueTypeId(issue.IssueType.Id);
-            if (issueType == null)
-            {
-                await databaseContext.IssueTypes.AddAsync(issue.IssueType);
-            }
-            else
-            {
-                issue.IssueType = issueType;
-                issue.IssueTypeId = issueType.Id;
-            }
-            await databaseContext.SaveChangesAsync();
-        }
-
-        public async Task CreateOrReplaceIssueEstimatedAndSpentTime(Issue issue)
-        {
-            var existingTime = await GetEstimatedAndSpentTimeAgainstIssueId(issue.Id);
-            if (existingTime != null)
-            {
-                existingTime.AggregateTimeEstimate = issue.IssueEstimatedAndSpentTime.AggregateTimeEstimate;
-                existingTime.AggregatedTimeEstimateInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeEstimateInDays;
-                existingTime.AggregatedTimeSpentInDays = issue.IssueEstimatedAndSpentTime.AggregatedTimeSpentInDays;
-                databaseContext.Update(existingTime);
-            }
-            else
-            {
-                await databaseContext.EstimatedAndSpentTimes.AddAsync(issue.IssueEstimatedAndSpentTime);
-            }
         }
 
         public async Task<List<Issue>> GetAllIssuesAgainstFixVersion(string fixVersion)

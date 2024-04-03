@@ -1,4 +1,5 @@
 ﻿using IssueAnalysisExtended.Models;
+using IssueAnalysisExtended.Repository.Interfaces;
 using System.Text;
 using WebApplication7.Models;
 using WebApplication7.Repository;
@@ -11,11 +12,11 @@ namespace WebApplication7.Services
         private const string JIRA_INSTANCE_INFO_URL = "/rest/api/3/serverInfo";
         private const string JIRA_USER_CREDENTIALS_INFO_URL = "/rest/api/3/myself";
         private HttpClientService httpClientService;
-        private SourceCredentialsRepository sourceCredentialsRepository;
+        private ISourceCredentialsRepository sourceCredentialsRepository;
         private ProjectService projectService;
         private CustomFieldsService customFieldsService;
-        public SourceService(HttpClientService httpClientService, 
-            SourceCredentialsRepository sourceCredentialsRepository,
+        public SourceService(HttpClientService httpClientService,
+            ISourceCredentialsRepository sourceCredentialsRepository,
             ProjectService projectService,
             CustomFieldsService customFieldsService)
         {

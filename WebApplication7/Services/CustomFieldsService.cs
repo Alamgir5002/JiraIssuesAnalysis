@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using IssueAnalysisExtended.Repository.Interfaces;
+using Newtonsoft.Json.Linq;
 using WebApplication7.Models;
 using WebApplication7.Repository;
 
@@ -13,9 +14,9 @@ namespace WebApplication7.Services
         private HttpClientService httpClientService;
         private IssueMapperService issueMapperService;
 
-        private CustomFieldRepository customFieldRepository;
+        private ICustomFieldRepository customFieldRepository;
 
-        public CustomFieldsService(CustomFieldRepository customFieldRepository, 
+        public CustomFieldsService(ICustomFieldRepository customFieldRepository, 
             HttpClientService httpClientService,
             IssueMapperService issueMapperService)
         {

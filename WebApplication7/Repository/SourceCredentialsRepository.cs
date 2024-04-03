@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IssueAnalysisExtended.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using WebApplication7.Models;
 
 namespace WebApplication7.Repository
 {
-    public class SourceCredentialsRepository
+    public class SourceCredentialsRepository: ISourceCredentialsRepository
     {
         private DatabaseContext databaseContext;
         public SourceCredentialsRepository(DatabaseContext databaseContext)

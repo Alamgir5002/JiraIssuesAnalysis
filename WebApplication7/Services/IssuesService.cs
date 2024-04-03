@@ -4,6 +4,7 @@ using WebApplication7.Repository;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using IssueAnalysisExtended.Repository.Interfaces;
 
 
 
@@ -19,12 +20,12 @@ namespace WebApplication7.Services
         private const string ISSUES_KEY = "issues";
         private const string TOTAL_KEY = "total";
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
-        private IssueRepository issueRepository;
+        private IIssueRepository issueRepository;
         private CustomFieldsService customFieldsService;
         public IssuesService(HttpClientService httpClientService,
                SourceService sourceService,
                IssueMapperService issueMapperService,
-               IssueRepository issueRepository,
+               IIssueRepository issueRepository,
                CustomFieldsService customFieldsService)
         {
             this.httpClientService = httpClientService;

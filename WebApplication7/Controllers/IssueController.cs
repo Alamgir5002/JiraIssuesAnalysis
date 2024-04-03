@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using IssueAnalysisExtended.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication7.Models;
 using WebApplication7.Repository;
@@ -12,8 +13,8 @@ namespace WebApplication7.Controllers
     {
         private IssuesService issuesService;
         private CustomFieldsService customFieldsService;
-        private IssueRepository issueRepository;
-        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService, IssueRepository issueRepository)
+        private IIssueRepository issueRepository;
+        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService, IIssueRepository issueRepository)
         {
             this.issuesService = issuesService;
             this.customFieldsService = customFieldsService; 
