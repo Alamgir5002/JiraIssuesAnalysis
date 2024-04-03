@@ -14,16 +14,16 @@ namespace WebApplication7.Controllers
     {
         private IssuesService issuesService;
         private readonly SyncedReleasesRespository syncedReleasesRespository;
-        public IssueController(IssuesService issuesService, SyncedReleasesRespository _syncedReleasesRespository)
+        public IssueController(IssuesService issuesService, SyncedReleasesRespository syncedReleasesRespository)
         {
             this.issuesService = issuesService;
-            syncedReleasesRespository = _syncedReleasesRespository;
+            this.syncedReleasesRespository = syncedReleasesRespository; 
         }
 
-        [HttpGet("/releases/{projectId}")]
-        public async Task<IActionResult> GetReleasesFromSource(string projectId)
+        [HttpGet("/all/releases")]
+        public async Task<IActionResult> GetReleasesFromSource()
         {
-            List<Release> releasesList = await issuesService.FetchReleasesFromSource(projectId);
+            List<Release> releasesList = await issuesService.FetchReleasesFromSource();
             return Ok(releasesList);
         }
 
@@ -61,8 +61,8 @@ namespace WebApplication7.Controllers
         [HttpGet("/release/{fixVersion}")]
         public async Task<IActionResult> GetIssuesAgainstSyncedOrLiveRelease(string fixVersion)
         {
-            var r = await syncedReleasesRespository.GetRelease(fixVersion);
-            if ( r != null)
+            var syncedRelease = await syncedReleasesRespository.GetRelease(fixVersion);
+            if (syncedRelease != null)
             {
                 var resp = await issuesService.GetAllIssuesFromDatabase(fixVersion);
                 return Ok(resp);
