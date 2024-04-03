@@ -37,7 +37,7 @@ builder.Services.AddScoped<IIssueEstimatedAndSpentTimeRepository, IssueEstimated
 builder.Services.AddScoped<SyncedReleasesRespository>();
 
 builder.Services.AddScoped<JiraSyncService>();
-//builder.Services.AddScoped<JiraIssuesSyncServiceJob>();
+builder.Services.AddScoped<JiraIssuesSyncServiceJob>();
 
 // Configure Hangfire
 builder.Services.AddHangfire(configuration => configuration

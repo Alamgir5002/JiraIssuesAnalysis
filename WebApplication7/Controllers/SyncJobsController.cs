@@ -16,20 +16,20 @@ namespace IssueAnalysisExtended.Controllers
             _jiraSyncService = jiraSyncService;
         }
 
-        [HttpPost("/bootstrapReleases")]
-        public async Task<IActionResult> AddBootstrapJobForReleases(List<string> releaseNames)
-        {
-            try
-            {
-                _jiraSyncService.AddBootstrapJobForReleases(releaseNames);
-                return Ok();
-            } 
-            catch (Exception ex)
-            {
-                _logger.LogCritical("Failed to configure bootstrap job: {ex}", ex.Message.ToString());
-                return BadRequest(ex.Message);
-            }
-            return Ok();
-        }
+        //[HttpPost("/bootstrapReleases")]
+        //public async Task<IActionResult> AddBootstrapJobForReleases(List<string> releaseNames)
+        //{
+        //    try
+        //    {
+        //        _jiraSyncService.AddBootstrapJobForReleases(releaseNames);
+        //        return Ok();
+        //    } 
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogCritical("Failed to configure bootstrap job: {ex}", ex.Message.ToString());
+        //        return BadRequest(ex.Message);
+        //    }
+        //    return Ok();
+        //}
     }
 }
