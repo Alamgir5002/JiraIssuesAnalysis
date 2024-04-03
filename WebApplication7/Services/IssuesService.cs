@@ -89,11 +89,8 @@ namespace WebApplication7.Services
 
                 issuesList.AddRange(issues);
                 dataClientCursor.Iteration += 1;
-
                 dataClientCursor.NextIterationPossible = (dataClientCursor.Iteration * MAX_RESULT) < dataClientCursor.TotalRecords;
             }
-
-            
 
             return issuesList;
         }
@@ -113,11 +110,10 @@ namespace WebApplication7.Services
             return json;
         }
 
-
         public IssueResponse processIssuesList(List<Issue> issues)
         {
             //filtering parent issues
-            //issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
+            issues = issues = issues.Where(issue => !issue.IssueType.SubTask).ToList();
             //sorting issues on basics of resolved date
             string sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
             var issuesWithNoResolvedDate = issues.Where(issue => String.IsNullOrEmpty(issue.ResolvedDate) || String.IsNullOrWhiteSpace(issue.ResolvedDate) || String.IsNullOrEmpty(issue.CreatedDate) || String.IsNullOrWhiteSpace(issue.CreatedDate)).ToList();
@@ -128,16 +124,17 @@ namespace WebApplication7.Services
             return response.processIssues(issues);
         }
 
-
         public async Task<IssueResponse> GetAllIssuesFromDatabase(string fixVersion)
         {
             List<Issue> issue = await issueRepository.GetAllIssuesAgainstFixVersion(fixVersion);
             return processIssuesList(issue);
         }
 
-        
 
-       
+        public List<Issue> GetAllIssuesList()
+        {
+            return issueRepository.GetAllIssues().ToList();
+        }
     }
 
 

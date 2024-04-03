@@ -12,13 +12,9 @@ namespace WebApplication7.Controllers
     public class IssueController : ControllerBase
     {
         private IssuesService issuesService;
-        private CustomFieldsService customFieldsService;
-        private IIssueRepository issueRepository;
-        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService, IIssueRepository issueRepository)
+        public IssueController(IssuesService issuesService)
         {
             this.issuesService = issuesService;
-            this.customFieldsService = customFieldsService; 
-            this.issueRepository = issueRepository; 
         }
 
         [HttpGet("/releases/{projectId}")]
@@ -44,13 +40,12 @@ namespace WebApplication7.Controllers
 
         }
 
-
-
         [HttpGet("allIssues")]
         public List<Issue> GetAllIssues()
         {
-            return issueRepository.GetAllIssues().ToList();
+            return issuesService.GetAllIssuesList();
         }
+
         [HttpGet("allIssues/{fixVersion}")]
 
         public async Task<IActionResult> GetIssuesAgainstFixVersion(string fixVersion)
@@ -59,7 +54,5 @@ namespace WebApplication7.Controllers
 
             return Ok(resp);
         }
-
-
     }
 }
