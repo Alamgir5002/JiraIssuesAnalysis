@@ -174,9 +174,9 @@ namespace WebApplication7.Services
             return estimatedAndSpentTime;
         }
 
-        private int calculateTimeInDays(int timeInSeconds)
+        private double calculateTimeInDays(int timeInSeconds)
         {
-            return timeInSeconds / (3600 * 8);
+            return (double)timeInSeconds / (3600 * 8);
         }
 
         public async Task<List<string>> getFieldsValues(string storyPointsCfValue, string teamBoardsCfValue)

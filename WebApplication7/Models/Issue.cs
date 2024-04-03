@@ -51,8 +51,8 @@ namespace WebApplication7.Models
     {
         public double AggregatedTimeSpent { get; set; }
         public double AggregateTimeEstimate { get; set; }
-        public int AggregatedTimeSpentInDays { get; set; }
-        public int AggregatedTimeEstimateInDays { get; set; }
+        public double AggregatedTimeSpentInDays { get; set; }
+        public double AggregatedTimeEstimateInDays { get; set; }
         [JsonIgnore]
         public Issue Issue { get; set; }
         [Key]
