@@ -13,12 +13,11 @@ namespace WebApplication7.Controllers
     public class IssueController : ControllerBase
     {
         private IssuesService issuesService;
-        private CustomFieldsService customFieldsService;
-        private IssueRepository issueRepository;
         private readonly SyncedReleasesRespository syncedReleasesRespository;
-        public IssueController(IssuesService issuesService, CustomFieldsService customFieldsService, IssueRepository issueRepository)
+        public IssueController(IssuesService issuesService, SyncedReleasesRespository _syncedReleasesRespository)
         {
             this.issuesService = issuesService;
+            syncedReleasesRespository = _syncedReleasesRespository;
         }
 
         [HttpGet("/releases/{projectId}")]
@@ -62,7 +61,8 @@ namespace WebApplication7.Controllers
         [HttpGet("/release/{fixVersion}")]
         public async Task<IActionResult> GetIssuesAgainstSyncedOrLiveRelease(string fixVersion)
         {
-            if ( syncedReleasesRespository.GetRelease(fixVersion) != null)
+            var r = await syncedReleasesRespository.GetRelease(fixVersion);
+            if ( r != null)
             {
                 var resp = await issuesService.GetAllIssuesFromDatabase(fixVersion);
                 return Ok(resp);

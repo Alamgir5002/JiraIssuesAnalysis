@@ -1,6 +1,7 @@
 using Hangfire;
 using IssueAnalysisExtended.Repository;
 using IssueAnalysisExtended.Repository.Interfaces;
+using IssueAnalysisExtended.Services;
 using IssueAnalysisExtended.Services.SyncService;
 using IssueAnalysisExtended.Services.SyncService.Jobs;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IssuesService>();
 builder.Services.AddScoped<CustomFieldsService>();
 builder.Services.AddScoped<IssueMapperService>();
 builder.Services.AddScoped<HttpClientService>();
+builder.Services.AddScoped<TruncationService>();
   
 builder.Services.AddScoped<ISourceCredentialsRepository, SourceCredentialsRepository>();
 builder.Services.AddScoped<ICustomFieldRepository, CustomFieldRepository>();
