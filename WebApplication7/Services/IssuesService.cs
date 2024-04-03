@@ -22,24 +22,33 @@ namespace WebApplication7.Services
         private const string RELEASES_ENDPOINT = "rest/api/3/project/{0}/versions";
         private IIssueRepository issueRepository;
         private CustomFieldsService customFieldsService;
+        private ProjectService projectService;
         public IssuesService(HttpClientService httpClientService,
                SourceService sourceService,
                IssueMapperService issueMapperService,
                IIssueRepository issueRepository,
-               CustomFieldsService customFieldsService)
+               CustomFieldsService customFieldsService,
+               ProjectService projectService)
         {
             this.httpClientService = httpClientService;
             this.issueMapperService = issueMapperService;
             this.issueRepository = issueRepository;
             this.sourceService = sourceService;
             this.customFieldsService = customFieldsService;
+            this.projectService = projectService;
         }
 
-        public async Task<List<Release>> FetchReleasesFromSource(string projectId)
+        public async Task<List<Release>> FetchReleasesFromSource()
         {
             SourceCredentials sourceCredentials = await sourceService.GetSourceCredentialsAsync();
+            var project = await projectService.GetProjectDetails();
 
-            string endPoint = String.Format(RELEASES_ENDPOINT, projectId);
+            if(project == null)
+            {
+                throw new Exception("Project not configured!");
+            }
+
+            string endPoint = String.Format(RELEASES_ENDPOINT, project.Key);
             Uri url = new Uri(new Uri(sourceCredentials.SourceURL), endPoint);
 
             HttpResponseMessage httpResponse = await httpClientService.SendGetRequestWithBasicAuthHeaders(url.ToString(), sourceCredentials);

@@ -30,7 +30,7 @@ namespace WebApplication7.Services
                 issue.Parent = convertToParent(item["fields"]["parent"], sourceUrl);
                 issue.TeamBoard = getTeamBoard(item["fields"][teamBoardCfValue]);
                 issue.IssueUrl = prepareIssueUrl(sourceUrl, castValueToGivenType<string>(item["key"]));
-                issue.ProductivityRatio = calculateProductivityRatio(item["fields"][storyPointsCfValue], item["fields"]["aggregatetimespent"]);
+                issue.ProductivityRatio = calculateProductivityRatio(item["fields"][storyPointsCfValue], issue.IssueEstimatedAndSpentTime.AggregatedTimeSpentInDays);
                 issue.FixVersions = getReleaseList(item["fields"]["fixVersions"], issue);
                 issues.Add(issue);
             }
@@ -208,16 +208,16 @@ namespace WebApplication7.Services
             return fields;
         }
 
-        private double calculateProductivityRatio(JToken jTokenStoryPoints, JToken jTokenTimeSpent)
+        private double calculateProductivityRatio(JToken jTokenStoryPoints, double timeInDays)
         {
             int storyPoints = castValueToGivenType<int>(jTokenStoryPoints);
-            double timeSpent = castValueToGivenType<double>(jTokenTimeSpent);
-            if(timeSpent == 0 || storyPoints == 0)
+ 
+            if(timeInDays == 0 || storyPoints == 0)
             {
                 return 0;
             }
-            timeSpent = timeSpent / 3600;
-            return (double) storyPoints/timeSpent;  
+
+            return (double) storyPoints/timeInDays;  
         }
 
         public List<CustomField> ConvertResponseToCustomFields(JArray jsonArray)
