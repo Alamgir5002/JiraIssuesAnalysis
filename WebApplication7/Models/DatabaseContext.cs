@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IssueAnalysisExtended.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication7.Models
 {
@@ -13,6 +14,7 @@ namespace WebApplication7.Models
         public DbSet<TeamBoard> TeamBoards { get; set; }
         public DbSet<Release> Releases { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<SyncedRelease> syncedReleases{ get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 

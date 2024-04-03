@@ -1,6 +1,7 @@
 using Hangfire;
 using IssueAnalysisExtended.Repository;
 using IssueAnalysisExtended.Services.SyncService;
+using IssueAnalysisExtended.Services.SyncService.Jobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using WebApplication7.Models;
@@ -28,8 +29,10 @@ builder.Services.AddScoped<CustomFieldRepository>();
 builder.Services.AddScoped<IssueRepository>();
 builder.Services.AddScoped<ProjectRepository>();
 builder.Services.AddScoped<ReleasesRespository>();
+builder.Services.AddScoped<SyncedReleasesRespository>();
 
-builder.Services.AddScoped<JiraIssuesSyncServiceJob>();
+builder.Services.AddScoped<JiraSyncService>();
+//builder.Services.AddScoped<JiraIssuesSyncServiceJob>();
 
 // Configure Hangfire
 builder.Services.AddHangfire(configuration => configuration
