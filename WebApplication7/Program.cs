@@ -41,12 +41,15 @@ builder.Services.AddScoped<SyncedReleasesRespository>();
 builder.Services.AddScoped<JiraSyncService>();
 builder.Services.AddScoped<JiraIssuesSyncServiceJob>();
 
+string envConnectionStringHangfire = new string(value: Environment.GetEnvironmentVariable("HangfireConnection"));
+var hangfireConnectionString = envConnectionStringHangfire ?? builder.Configuration.GetConnectionString("HangfireConnection");
+
 // Configure Hangfire
 builder.Services.AddHangfire(configuration => configuration
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+    .UseSqlServerStorage(hangfireConnectionString));
 
 builder.Services.AddHangfireServer();
 
@@ -56,7 +59,8 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
 //builder.Logging.AddDebug();
 
-string connectionString = builder.Configuration.GetConnectionString("SQLConnectionString") ?? throw new InvalidOperationException("Connection string of name SQLConnectionString not found");
+string envConnectionStringIssueAnalysis = new string(value: Environment.GetEnvironmentVariable("SQLConnectionString"));
+var connectionString = envConnectionStringIssueAnalysis ?? builder.Configuration.GetConnectionString("SQLConnectionString");
 builder.Services.AddDbContext<DatabaseContext>(conn => conn.UseSqlServer(connectionString));
 
 var app = builder.Build();

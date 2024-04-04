@@ -1,9 +1,6 @@
 ﻿using IssueAnalysisExtended.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using WebApplication7.Models;
 
 namespace IssueAnalysisExtended.Controllers
