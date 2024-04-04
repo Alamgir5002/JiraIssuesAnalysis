@@ -34,7 +34,7 @@ jobs:
         run: |
           # cd $PROJECT_ROOT_PATH
           docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.BACKEND_APP_IMAGE_NAME }} .
-          docker login issueanalysisregistery.azurecr.io.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
+          docker login issueanalysisregistery.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
           docker push ${{ env.BACKEND_APP_IMAGE_NAME }}
           
       # - name: Build and push bank-app-frontend Docker image
