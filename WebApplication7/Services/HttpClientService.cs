@@ -10,6 +10,8 @@ namespace WebApplication7.Services
         public HttpClientService()
         {
             httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromMinutes(10);
+
         }
 
         public async Task<HttpResponseMessage> SendPostRequest(string endpoint, string jsonData, SourceCredentials sourceCredentials)
