@@ -1,0 +1,120 @@
+name: Build Docker images & Push to Azure Container Registry
+
+on: 
+  push:
+    branches: [ prod ]
+  pull_request:
+    branches: [ prod ]
+
+env:
+  ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+  BACKEND_APP_IMAGE_NAME: 'issueanalysisregistery.azurecr.io/issue-analysis-extended-backend:${{ github.sha }}'
+
+jobs:
+  Build:
+    name: Build & Push IssueAnalysisExtended(BE) to container registry on azure
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This job was triggered by a ${{ github.event_name }} event"
+
+      - name: Check out IssueAnalysisExtended respository
+        uses: actions/checkout@v2
+
+      - run: echo "Repository code copied to the ${{ github.workspace }}"
+
+      - name: List repository files
+        run: |
+          ls ${{ github.workspace }}
+      
+      - name: Build and push BankAppBackend Docker image
+        env:
+          PROJECT_ROOT_PATH: 'WebApplication7'
+          DOCKERFILE_PATH: 'WebApplication7/Dockerfile'
+        run: |
+          # cd $PROJECT_ROOT_PATH
+          docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.BACKEND_APP_IMAGE_NAME }} .
+          docker login issueanalysisregistery.azurecr.io.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
+          docker push ${{ env.BACKEND_APP_IMAGE_NAME }}
+          
+      # - name: Build and push bank-app-frontend Docker image
+      #   env:
+      #     PROJECT_ROOT_PATH: 'bank-app-frontend'
+      #     DOCKERFILE_PATH: 'bank-app-frontend/Dockerfile'
+      #   run: |
+      #     cd $PROJECT_ROOT_PATH          
+      #     docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.FRONTEND_APP_IMAGE_NAME }} .
+      #     docker login thebankappcontainer.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
+      #     docker push ${{ env.FRONTEND_APP_IMAGE_NAME }}
+          
+      # - name: Build and push BankTrackingSystem Docker image
+      #   env:
+      #     PROJECT_ROOT_PATH: 'BankTrackingSystem'
+      #     DOCKERFILE_PATH: 'Dockerfile'
+      #     IMAGE_NAME: 'thebankappcontainer.azurecr.io/banktrackingsystem:${{ github.sha }}'
+      #   run: |
+      #     cd $PROJECT_ROOT_PATH
+      #     docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.TRACKING_SYSTEM_APP_IMAGE_NAME }} .
+      #     docker login thebankappcontainer.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
+      #     docker push ${{ env.TRACKING_SYSTEM_APP_IMAGE_NAME }}    
+    
+  Deploy:
+    name: Deploy all built artifacts + dependencies to Container App instances
+    needs: 
+      - Build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This job was triggered by a ${{ github.event_name }} event"
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_SUBSCRIPTION }}
+
+      # - name: Deploy Frontend Container App
+      #   uses: azure/container-apps-deploy-action@v1
+      #   with:
+      #     resourceGroup: myResourceGroup
+      #     containerAppEnvironment: bank-environment
+      #     containerAppName: bank-app-frontend
+      #     acrName: thebankappcontainer
+      #     acrUsername: ${{ secrets.DOCKER_USERNAME }}
+      #     acrPassword: ${{ secrets.DOCKER_PASSWORD }}
+      #     imageToDeploy: ${{ env.FRONTEND_APP_IMAGE_NAME }}
+      #     targetPort: 8080
+      #     environmentVariables:
+      #       BackEndConnection=http://bank-app-backend
+      #       ASPNETCORE_ENVIRONMENT=Production
+
+      # - name: Deploy Backend Container App
+      #   uses: azure/container-apps-deploy-action@v1
+      #   with:
+      #     resourceGroup: myResourceGroup
+      #     containerAppEnvironment: bank-environment
+      #     containerAppName: bank-app-backend
+      #     acrName: thebankappcontainer
+      #     acrUsername: ${{ secrets.DOCKER_USERNAME }}
+      #     acrPassword: ${{ secrets.DOCKER_PASSWORD }}
+      #     imageToDeploy: ${{ env.BACKEND_APP_IMAGE_NAME }}
+      #     targetPort: 8080
+      #     environmentVariables:
+      #       ASPNETCORE_ENVIRONMENT=Production
+      #       SQLConnectionString='${{ SECRETS.AZURE_SQL_CONNECTION_STRING }}'
+      #       RedisConnectionString='${{ SECRETS.REDIS_CONNECTION_STRING }}'
+
+      # - name: Deploy Tracking Container App
+      #   uses: azure/container-apps-deploy-action@v1
+      #   with:
+      #     resourceGroup: myResourceGroup
+      #     containerAppEnvironment: bank-environment
+      #     containerAppName: bank-app-tracking
+      #     acrName: thebankappcontainer
+      #     acrUsername: ${{ secrets.DOCKER_USERNAME }}
+      #     acrPassword: ${{ secrets.DOCKER_PASSWORD }}
+      #     imageToDeploy: ${{ env.TRACKING_SYSTEM_APP_IMAGE_NAME }}
+      #     targetPort: 8080
+      #     environmentVariables:
+      #       FrontEndConnectionString=http://bank-app-frontend
+      #       ASPNETCORE_ENVIRONMENT=Production
+      #       RedisConnectionString='${{ SECRETS.REDIS_CONNECTION_STRING }}'
+
