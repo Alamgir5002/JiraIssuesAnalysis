@@ -92,7 +92,7 @@ jobs:
           resourceGroup: rg-issue-analysis
           containerAppEnvironment: issue-analysis-extended
           containerAppName: issue-analysis-extended-backend
-          acrName: issueanalysisregistery.azurecr.io
+          acrName: issueanalysisregistery
           acrUsername: ${{ env.ACR_USERNAME }}
           acrPassword: ${{ env.ACR_PASSWORD }}
           imageToDeploy: ${{ env.BACKEND_APP_IMAGE_NAME }}
