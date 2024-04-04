@@ -86,21 +86,21 @@ jobs:
       #       BackEndConnection=http://bank-app-backend
       #       ASPNETCORE_ENVIRONMENT=Production
 
-      # - name: Deploy Backend Container App
-      #   uses: azure/container-apps-deploy-action@v1
-      #   with:
-      #     resourceGroup: myResourceGroup
-      #     containerAppEnvironment: bank-environment
-      #     containerAppName: bank-app-backend
-      #     acrName: thebankappcontainer
-      #     acrUsername: ${{ secrets.DOCKER_USERNAME }}
-      #     acrPassword: ${{ secrets.DOCKER_PASSWORD }}
-      #     imageToDeploy: ${{ env.BACKEND_APP_IMAGE_NAME }}
-      #     targetPort: 8080
-      #     environmentVariables:
-      #       ASPNETCORE_ENVIRONMENT=Production
-      #       SQLConnectionString='${{ SECRETS.AZURE_SQL_CONNECTION_STRING }}'
-      #       RedisConnectionString='${{ SECRETS.REDIS_CONNECTION_STRING }}'
+      - name: Deploy IssueAnalysisExtended(BE)
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          resourceGroup: rg-issue-analysis
+          containerAppEnvironment: issue-analysis-extended
+          containerAppName: issue-analysis-extended-backend
+          acrName: issueanalysisregistery.azurecr.io
+          acrUsername: ${{ env.ACR_USERNAME }}
+          acrPassword: ${{ env.ACR_PASSWORD }}
+          imageToDeploy: ${{ env.BACKEND_APP_IMAGE_NAME }}
+          targetPort: 8080
+          environmentVariables:
+            ASPNETCORE_ENVIRONMENT=Production
+            SQLConnectionString='${{ SECRETS.SQL_CONNECTION }}'
+            HangfireConnection='${{ SECRETS.SQL_CONN_HANGFIRE_ }}'
 
       # - name: Deploy Tracking Container App
       #   uses: azure/container-apps-deploy-action@v1
