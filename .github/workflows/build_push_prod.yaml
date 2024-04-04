@@ -32,31 +32,9 @@ jobs:
           PROJECT_ROOT_PATH: 'WebApplication7'
           DOCKERFILE_PATH: 'WebApplication7/Dockerfile'
         run: |
-          # cd $PROJECT_ROOT_PATH
           docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.BACKEND_APP_IMAGE_NAME }} .
           docker login issueanalysisregistery.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
           docker push ${{ env.BACKEND_APP_IMAGE_NAME }}
-          
-      # - name: Build and push bank-app-frontend Docker image
-      #   env:
-      #     PROJECT_ROOT_PATH: 'bank-app-frontend'
-      #     DOCKERFILE_PATH: 'bank-app-frontend/Dockerfile'
-      #   run: |
-      #     cd $PROJECT_ROOT_PATH          
-      #     docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.FRONTEND_APP_IMAGE_NAME }} .
-      #     docker login thebankappcontainer.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
-      #     docker push ${{ env.FRONTEND_APP_IMAGE_NAME }}
-          
-      # - name: Build and push BankTrackingSystem Docker image
-      #   env:
-      #     PROJECT_ROOT_PATH: 'BankTrackingSystem'
-      #     DOCKERFILE_PATH: 'Dockerfile'
-      #     IMAGE_NAME: 'thebankappcontainer.azurecr.io/banktrackingsystem:${{ github.sha }}'
-      #   run: |
-      #     cd $PROJECT_ROOT_PATH
-      #     docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.TRACKING_SYSTEM_APP_IMAGE_NAME }} .
-      #     docker login thebankappcontainer.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
-      #     docker push ${{ env.TRACKING_SYSTEM_APP_IMAGE_NAME }}    
     
   Deploy:
     name: Deploy all built artifacts + dependencies to Container App instances
@@ -71,26 +49,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_SUBSCRIPTION }}
 
-      # - name: Deploy Frontend Container App
-      #   uses: azure/container-apps-deploy-action@v1
-      #   with:
-      #     resourceGroup: myResourceGroup
-      #     containerAppEnvironment: bank-environment
-      #     containerAppName: bank-app-frontend
-      #     acrName: thebankappcontainer
-      #     acrUsername: ${{ secrets.DOCKER_USERNAME }}
-      #     acrPassword: ${{ secrets.DOCKER_PASSWORD }}
-      #     imageToDeploy: ${{ env.FRONTEND_APP_IMAGE_NAME }}
-      #     targetPort: 8080
-      #     environmentVariables:
-      #       BackEndConnection=http://bank-app-backend
-      #       ASPNETCORE_ENVIRONMENT=Production
-
       - name: Deploy IssueAnalysisExtended(BE)
         uses: azure/container-apps-deploy-action@v1
         with:
           resourceGroup: rg-issue-analysis
-          containerAppEnvironment: issue-analysis-extended
+          containerAppEnvironment: issue-analysis-extended-environment
           containerAppName: issue-analysis-extended-backend
           acrName: issueanalysisregistery
           acrUsername: ${{ env.ACR_USERNAME }}
