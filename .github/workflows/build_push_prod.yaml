@@ -32,10 +32,13 @@ jobs:
           PROJECT_ROOT_PATH: 'WebApplication7'
           DOCKERFILE_PATH: 'WebApplication7/Dockerfile'
         run: |
-          # cd $PROJECT_ROOT_PATH
           docker build -f $DOCKERFILE_PATH --force-rm -t ${{ env.BACKEND_APP_IMAGE_NAME }} .
           docker login issueanalysisregistery.azurecr.io -u ${{ env.ACR_USERNAME }} -p ${{ env.ACR_PASSWORD }}
+<<<<<<< HEAD
           docker push ${{ env.BACKEND_APP_IMAGE_NAME }}   
+=======
+          docker push ${{ env.BACKEND_APP_IMAGE_NAME }}
+>>>>>>> 1e54fba9cbdc330917ec02af4c42e5dd149ecf58
     
   Deploy:
     name: Deploy all built artifacts + dependencies to Container App instances
@@ -54,7 +57,7 @@ jobs:
         uses: azure/container-apps-deploy-action@v1
         with:
           resourceGroup: rg-issue-analysis
-          containerAppEnvironment: issue-analysis-extended
+          containerAppEnvironment: issue-analysis-extended-environment
           containerAppName: issue-analysis-extended-backend
           acrName: issueanalysisregistery
           acrUsername: ${{ env.ACR_USERNAME }}
